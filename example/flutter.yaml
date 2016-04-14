@@ -1,0 +1,4 @@
+name: google_sign_in_example
+uses-material-design: true
+services:
+  - google_sign_in
