@@ -80,6 +80,17 @@ class SignInDemoState extends State<SignInDemo> {
       appBar: new AppBar(
         title: new Text('Google Sign In')
       ),
+      drawer: new GoogleSignInDrawer(
+        googleSignIn: _gsi,
+        child: new Block(
+          children: [
+            new ListItem(
+              title: new Text(_currentUser == null ? 'Sign out' : 'Sign in'),
+              onTap: _currentUser == null ? _gsi.signIn : _gsi.disconnect
+            )
+          ]
+        )
+      ),
       body: _buildBody()
     );
   }
