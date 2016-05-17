@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="made with love by dartdoc 0.9.0">
+  <meta name="description" content="google_sign_in API docs, for the Dart programming language.">
+  <title>google_sign_in - Dart API docs</title>
+
+  <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Source+Code+Pro|Roboto:500,400italic,300,400' type='text/css'>
+  <link rel="stylesheet" href="static-assets/prettify.css">
+  <link rel="stylesheet" href="static-assets/css/bootstrap.min.css">
+  <link rel="stylesheet" href="static-assets/styles.css">
+  <link rel="icon" href="static-assets/favicon.png">
+
+  <!-- Do not remove placeholder -->
+  <!-- Header Placeholder -->
+</head>
+
+<body>
+
+<div id="overlay-under-drawer"></div>
+
+<header class="container-fluid" id="title">
+  <nav class="navbar navbar-fixed-top">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12 contents">
+          <ol class="breadcrumbs gt-separated hidden-xs">
+            <li class="self-crumb">google_sign_in</li>
+          </ol>
+          <div class="self-name">google_sign_in</div>
+          <form class="search navbar-right" role="search">
+            <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+          </form>
+        </div> <!-- /col -->
+      </div> <!-- /row -->
+    </div> <!-- /container -->
+  </nav>
+
+  <div class="container masthead">
+    <div class="row">
+      <div class="col-sm-12 contents">
+        <ol class="breadcrumbs gt-separated visible-xs">
+        </ol>
+        <div class="title-description">
+          <h1 class="title">
+            <span class="kind">package</span> google_sign_in
+          </h1>
+        </div>
+        <ul class="subnav">
+          <li><a href="index.html#libraries">Libraries</a></li>
+        </ul>
+      </div> <!-- /col -->
+    </div> <!-- /row -->
+  </div> <!-- /container -->
+
+</header>
+
+<div class="container body">
+  <div class="row">
+
+  <div class="col-xs-6 col-sm-3 col-md-2 sidebar sidebar-offcanvas-left">
+    <h5>google_sign_in</h5>
+
+    <ol>
+      <li class="section-title"><a href="index.html#libraries">Libraries</a></li>
+      <li><a href="google_sign_in/google_sign_in-library.html">google_sign_in</a></li>
+    </ol>
+  </div>
+
+  <div class="col-xs-12 col-sm-9 col-md-8 main-content">
+
+      <section class="desc markdown">
+        <p>A Dart wrapper for <a href="https://developers.google.com/identity/">Google Sign In</a>.</p>
+<p>The Google Sign-In SDK is currently only supported on iOS.</p>
+<h4>Installing</h4>
+<p>Add google_sign_in as a dependency in your pubspec.yaml.</p>
+<p>Ensure that <code>google_sign_in</code> is listed in the <code>services</code> section of
+your flutter.yaml:</p>
+<pre class="yaml prettyprint"><code>    services:
+      - google_sign_in
+</code></pre>
+<p>Go to the <a href="https://developers.google.com/identity/sign-in/ios/sdk/">Google Sign-In SDK instructions</a>
+and follow the instructions to get a configuration file.</p>
+<p>Add the following to your ios/Info.plist:</p>
+<pre class="prettyprint lang-dart"><code>    &lt;key&gt;CFBundleURLTypes&lt;/key&gt;
+    &lt;array&gt;
+      &lt;dict&gt;
+        &lt;key&gt;CFBundleTypeRole&lt;/key&gt;
+        &lt;string&gt;Editor&lt;/string&gt;
+        &lt;key&gt;CFBundleURLSchemes&lt;/key&gt;
+        &lt;array&gt;
+          &lt;string&gt;BUNDLE_ID_FROM_CONFIGURATION_FILE&lt;/string&gt;
+        &lt;/array&gt;
+      &lt;/dict&gt;
+      &lt;dict&gt;
+        &lt;key&gt;CFBundleTypeRole&lt;/key&gt;
+        &lt;string&gt;Editor&lt;/string&gt;
+        &lt;key&gt;CFBundleURLSchemes&lt;/key&gt;
+        &lt;array&gt;
+          &lt;string&gt;REVERSED_CLIENT_ID_FROM_CONFIGURATION_FILE&lt;/string&gt;
+        &lt;/array&gt;
+      &lt;/dict&gt;
+    &lt;/array&gt;
+    &lt;key&gt;LSApplicationQueriesSchemes&lt;/key&gt;
+    &lt;array&gt;
+        &lt;string&gt;com-google-gidconsent-google&lt;/string&gt;
+        &lt;string&gt;com-google-gidconsent-youtube&lt;/string&gt;
+        &lt;string&gt;com-google-gidconsent&lt;/string&gt;
+        &lt;string&gt;com.google.gppconsent.2.4.1&lt;/string&gt;
+        &lt;string&gt;com.google.gppconsent.2.4.0&lt;/string&gt;
+        &lt;string&gt;googlechrome&lt;/string&gt;
+        &lt;string&gt;googlechrome-x-callback&lt;/string&gt;
+        &lt;string&gt;hasgplus4&lt;/string&gt;
+        &lt;string&gt;com.google.gppconsent.2.3.0&lt;/string&gt;
+        &lt;string&gt;com.google.gppconsent.2.2.0&lt;/string&gt;
+        &lt;string&gt;com.google.gppconsent&lt;/string&gt;
+    &lt;/array&gt;
+</code></pre>
+<h3>Building generated files from source</h3>
+<p>Files in the lib/generated folder require a Flutter engine to build.</p>
+<p>Clone this repository into your Flutter engine repository's <code>third_party/google_sign_in</code> directory.</p>
+<p>To build for iOS:</p>
+<pre class="prettyprint lang-dart"><code>./sky/tools/gn --ios --simulator --enable-google-sign-in
+ninja -C out/ios_debug_sim/ third_party/google_sign_in
+./sky/tools/gn --ios --runtime-mode release --enable-google-sign-in
+ninja -C out/ios_release/ third_party/google_sign_in
+lipo out/ios_debug_sim/libGoogleSignIn.dylib out/ios_release/libGoogleSignIn.dylib -create -output third_party/google_sign_in/lib/generated/ios/libGoogleSignIn.dylib 
+cp out/ios_debug_sim/gen/third_party/google_sign_in/mojom/google_sign_in.mojom.dart third_party/google_sign_in/lib/generated
+</code></pre>
+<p>To build for Android:</p>
+<pre class="prettyprint lang-dart"><code>./sky/tools/gn --android --enable-google-sign-in
+ninja -C out/android_debug/
+cp out/android_debug//gen/third_party/google_sign_in/interfaces_java.jar third_party/google_sign_in/android/mojo/libs
+cp out/android_debug//gen/mojo/public/java/bindings.jar third_party/google_sign_in/android/mojo/libs
+cp out/android_debug//gen/mojo/public/java/system.jar third_party/google_sign_in/android/mojo/libs
+cp out/android_debug/gen/third_party/google_sign_in/mojom/google_sign_in.mojom.dart third_party/google_sign_in/lib/generated
+(cd third_party/google_sign_in/android &amp;&amp; ./gradlew build)
+cp -r third_party/google_sign_in/android/mojo/build/intermediates/ third_party/google_sign_in/lib/generated/android/ 2&gt;&amp;1 | grep -v 'Permission denied'
+</code></pre>
+      </section>
+      
+    <section class="summary" id="libraries">
+      <h2>Libraries</h2>
+      <dl>
+          <dt id="google_sign_in">
+            <span class="name"><a href="google_sign_in/google_sign_in-library.html">google_sign_in</a></span>
+          </dt>
+          <dd>
+          </dd>
+      </dl>
+    </section>
+
+  </div> <!-- /.main-content -->
+
+  <div class="col-xs-6 col-sm-6 col-md-2 sidebar sidebar-offcanvas-right">
+
+  </div><!--/.sidebar-offcanvas-right-->
+
+</div> <!-- row -->
+</div> <!-- container -->
+
+<footer>
+  <div class="container-fluid">
+    <div class="container">
+      <p class="text-center">
+        <span class="no-break">
+          google_sign_in 0.0.1
+        </span>
+        &bull;
+        <span class="no-break">
+          <a href="https://www.dartlang.org">
+            <img src="static-assets/favicon.png" alt="Dart" title="Dart" width="16" height="16">
+          </a>
+        </span>
+        &bull;
+        <span class="copyright no-break">
+          <a href="http://creativecommons.org/licenses/by-sa/4.0/">cc license</a>
+        </span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="static-assets/typeahead.bundle.min.js"></script>
+<script src="static-assets/prettify.js"></script>
+<script src="static-assets/script.js"></script>
+<!-- Do not remove placeholder -->
+<!-- Footer Placeholder -->
+
+</body>
+
+</html>
