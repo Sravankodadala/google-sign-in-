@@ -1,7 +1,0 @@
-name: google_sign_in_example
-description: Example of Google Sign-In.
-dependencies:
-  google_sign_in:
-    path: ..
-  flutter:
-    path: ../../flutter/packages/flutter
