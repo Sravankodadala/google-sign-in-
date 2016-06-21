@@ -1,69 +1,90 @@
-// Copyright 2016 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright 2016, the Flutter project authors.  Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-final Random random = new Random();
-
-Future<dynamic> handleGetRandom(Map<String, dynamic> message) async {
-  final double min = message['min'].toDouble();
-  final double max = message['max'].toDouble();
-
-  return <String, double>{
-    'value': (random.nextDouble() * (max - min)) + min
-  };
-}
-
-class HelloServices extends StatefulWidget {
-  @override
-  _HelloServicesState createState() => new _HelloServicesState();
-}
-
-class _HelloServicesState extends State<HelloServices> {
-  double _latitude;
-  double _longitude;
-
-  @override
-  Widget build(BuildContext context) {
-    return new Material(
-      child: new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            new Text('Hello from Flutter!'),
-            new RaisedButton(
-              child: new Text('Get Location'),
-              onPressed: _getLocation
-            ),
-            new Text('Latitude: $_latitude, Longitude: $_longitude'),
-          ]
-        )
-      )
-    );
-  }
-
-  Future<Null> _getLocation() async {
-    final Map<String, String> message = <String, String>{'provider': 'network'};
-    final Map<String, dynamic> reply = await HostMessages.sendJSON('getLocation', message);
-    // If the widget was removed from the tree while the message was in flight,
-    // we want to discard the reply rather than calling setState to update our
-    // non-existant appearance.
-    if (!mounted)
-      return;
-    setState(() {
-      _latitude = reply['latitude'].toDouble();
-      _longitude = reply['longitude'].toDouble();
-    });
-  }
-}
+import 'package:google_sign_in/google_sign_in.dart';
 
 void main() {
-  runApp(new HelloServices());
+  runApp(
+    new MaterialApp(
+      title: 'Google Sign In',
+      home: new SignInDemo()
+    )
+  );
+}
 
-  HostMessages.addJSONMessageHandler('getRandom', handleGetRandom);
+class SignInDemo extends StatefulWidget {
+  @override
+  State createState() => new SignInDemoState();
+}
+
+class SignInDemoState extends State<SignInDemo> {
+  GoogleSignInAccount _currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    GoogleSignIn.signInSilently().then(_handleGoogleSignInResult);
+  }
+
+  void _handleGoogleSignInResult(GoogleSignInResult result) {
+    print("_handleGoogleSignInResult $result ${result.signInAccount}");
+    setState(() => _currentUser = result.signInAccount);
+  }
+
+  Future<Null> _handleSignIn() async {
+    GoogleSignIn.signIn().then(_handleGoogleSignInResult);
+  }
+
+  void _handleSignOut() {
+    GoogleSignIn.disconnect().then(_handleGoogleSignInResult);
+  }
+
+  Widget _buildBody() {
+    if (_currentUser != null) {
+      return new Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          new ListItem(
+            leading: new CircleAvatar(
+              child: new ClipOval(
+                child: new Image(image: new NetworkImage(_currentUser.photoUrl))
+              )
+            ),
+            title: new Text(_currentUser.displayName),
+            subtitle: new Text(_currentUser.email)
+          ),
+          new RaisedButton(
+            child: new Text('SIGN OUT'),
+            onPressed: _handleSignOut
+          )
+        ]
+      );
+    } else {
+      return new Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          new Text("You are not currently signed in."),
+          new RaisedButton(
+            child: new Text('SIGN IN'),
+            onPressed: _handleSignIn
+          )
+        ]
+      );
+    }
+  }
+
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text('Google Sign In')
+      ),
+      body: _buildBody()
+    );
+  }
 }

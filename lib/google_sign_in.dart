@@ -8,65 +8,52 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-import 'generated/google_sign_in.mojom.dart' as mojom;
+class GoogleSignInAccount {
+  final String displayName;
+  final String email;
+  final String id;
+  final String idToken;
+  final String serverAuthCode;
+  final String photoUrl;
 
-export 'generated/google_sign_in.mojom.dart'
-  show GoogleSignInUser, GoogleSignInResult;
+  GoogleSignInAccount._(Map<String, dynamic> message)
+    : displayName = message['displayName'],
+      email = message['email'],
+      id = message['id'],
+      idToken = message['idToken'],
+      serverAuthCode = message['serverAuthCode'],
+      photoUrl = message['photoUrl'];
+}
 
-class _Listener implements mojom.GoogleSignInListener {
-  StreamController<mojom.GoogleSignInUser> _streamController;
-  _Listener(this._streamController);
+class GoogleSignInResult {
+  final bool isSuccess;
+  final GoogleSignInAccount signInAccount;
 
-  @override
-  void onSignIn(mojom.GoogleSignInResult result) {
-    if (result.isSuccess) {
-      _streamController.add(result.user);
-    }
-  }
-
-  @override
-  void onDisconnected(mojom.GoogleSignInResult result) {
-    if (result.isSuccess)
-      _streamController.add(null);
-  }
+  GoogleSignInResult._(Map<String, dynamic> message)
+    : isSuccess = message['isSuccess'],
+      signInAccount = message['signInAccount'] != null ?
+                        new GoogleSignInAccount._(message['signInAccount']) :
+                        null;
 }
 
 /// GoogleSignIn allows you to authenticate Google users.
 class GoogleSignIn {
-  GoogleSignIn(String clientID)
-    : _streamController = new StreamController<mojom.GoogleSignInUser>.broadcast(),
-      _proxy = shell.connectToApplicationService(
-        "google::GoogleSignIn",
-        mojom.GoogleSignIn.connectToService
-     )  {
-    mojom.GoogleSignInListenerStub stub =
-      new mojom.GoogleSignInListenerStub.unbound(new _Listener(_streamController));
-    _proxy.init(clientID, stub);
-    onCurrentUserChanged.listen((mojom.GoogleSignInUser user) => _currentUser = user);
+
+  static Future<GoogleSignInResult> _callMethod(String method) async {
+    Map<String, String> request = <String, String>{'method': method};
+    Map<String, dynamic> response = await HostMessages.sendJSON('GoogleSignIn', request);
+    return new GoogleSignInResult._(response);
   }
 
-  mojom.GoogleSignInProxy _proxy;
-  StreamController<mojom.GoogleSignInUser> _streamController;
-
   /// Attempts to sign in a previously authenticated user without interaction.
-  void signInSilently() => _proxy.signInSilently();
+  static Future<GoogleSignInResult> signInSilently() => _callMethod('signInSilently');
 
   /// Starts the sign-in process.
-  void signIn() => _proxy.signIn();
+  static Future<GoogleSignInResult> signIn() => _callMethod('signIn');
 
   /// Marks current user as being in the signed out state.
-  void signOut() => _proxy.signOut();
+  static Future<GoogleSignInResult> signOut() => _callMethod('signOut');
 
   /// Disconnects the current user from the app and revokes previous authentication.
-  void disconnect() => _proxy.disconnect();
-
-  /// Stream for changes in current user
-  Stream<mojom.GoogleSignInUser> get onCurrentUserChanged => _streamController.stream;
-
-  /// Update the requested scopes
-  void setScopes(List<String> scopes) => _proxy.setScopes(scopes);
-
-  /// Read-only access to the current user
-  mojom.GoogleSignInUser _currentUser;
-  mojom.GoogleSignInUser get currentUser => _currentUser;
+  static Future<GoogleSignInResult> disconnect() => _callMethod('disconnect');
 }

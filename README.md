@@ -1,82 +1,80 @@
 A Dart wrapper for [Google Sign In](https://developers.google.com/identity/).
 
-The Google Sign-In SDK is currently only supported on iOS.
+#### Building the example
 
-#### Installing
+If you use the "example" project as a starting point:
+
+Update android/local.properties to add flutter.sdk=/path/to/flutter/sdk
+
+For Android, go to the [Android Sign-In SDK instructions](https://developers.google.com/identity/sign-in/android/start)
+and follow the instructions to download a google-services.json file. Move this file
+to ```android/app/google-services.json```.
+
+You can now open the example/android folder in Android Studio and run the app on an Android device.
+
+iOS support is coming soon.
+
+#### Adding to an existing Android project
+
+Go to the [Android Sign-In SDK instructions](https://developers.google.com/identity/sign-in/android/start)
+and follow the instructions to download a google-services.json file. Move this file
+to your application's ```android/app/google-services.json``` directory.
 
 Add google_sign_in as a dependency in your pubspec.yaml.
 
-Ensure that ```google_sign_in``` is listed in the ```services``` section of
-your flutter.yaml:
-```yaml
-    services:
-      - google_sign_in
-```
-Go to the [Google Sign-In SDK instructions](https://developers.google.com/identity/sign-in/ios/sdk/)
-and follow the instructions to get a configuration file.
+Add the following to your Android buildscript dependencies in the project root build.gradle:
 
-Add the following to your ios/Info.plist:
 ```
-    <key>CFBundleURLTypes</key>
-    <array>
-      <dict>
-        <key>CFBundleTypeRole</key>
-        <string>Editor</string>
-        <key>CFBundleURLSchemes</key>
-        <array>
-          <string>BUNDLE_ID_FROM_CONFIGURATION_FILE</string>
-        </array>
-      </dict>
-      <dict>
-        <key>CFBundleTypeRole</key>
-        <string>Editor</string>
-        <key>CFBundleURLSchemes</key>
-        <array>
-          <string>REVERSED_CLIENT_ID_FROM_CONFIGURATION_FILE</string>
-        </array>
-      </dict>
-    </array>
-    <key>LSApplicationQueriesSchemes</key>
-    <array>
-        <string>com-google-gidconsent-google</string>
-        <string>com-google-gidconsent-youtube</string>
-        <string>com-google-gidconsent</string>
-        <string>com.google.gppconsent.2.4.1</string>
-        <string>com.google.gppconsent.2.4.0</string>
-        <string>googlechrome</string>
-        <string>googlechrome-x-callback</string>
-        <string>hasgplus4</string>
-        <string>com.google.gppconsent.2.3.0</string>
-        <string>com.google.gppconsent.2.2.0</string>
-        <string>com.google.gppconsent</string>
-    </array>
+    classpath 'com.google.gms:google-services:3.0.0'
 ```
 
-### Building generated files from source
+Add the following to your application's build.gradle
 
-Files in the lib/generated folder require a Flutter engine to build.
-
-Clone this repository into your Flutter engine repository's ```third_party/google_sign_in``` directory.
-
-To build for iOS:
 ```
-./sky/tools/gn --ios --simulator --enable-google-sign-in
-ninja -C out/ios_debug_sim/ third_party/google_sign_in
-./sky/tools/gn --ios --runtime-mode release --enable-google-sign-in
-ninja -C out/ios_release/ third_party/google_sign_in
-lipo out/ios_debug_sim/libGoogleSignIn.dylib out/ios_release/libGoogleSignIn.dylib -create -output third_party/google_sign_in/lib/generated/ios/libGoogleSignIn.dylib 
-cp out/ios_debug_sim/gen/third_party/google_sign_in/mojom/google_sign_in.mojom.dart third_party/google_sign_in/lib/generated
+dependencies {
+    compile 'com.google.android.gms:play-services-auth:9.0.2'
+    compile 'io.flutter.google_sign_in:google-sign-in:0.0.1'
+}
+apply plugin: 'com.google.gms.google-services'
 ```
 
-To build for Android:
+In your activity class, add the following:
+
 ```
-./sky/tools/gn --android --enable-google-sign-in
-ninja -C out/android_debug/
-cp out/android_debug//gen/third_party/google_sign_in/interfaces_java.jar third_party/google_sign_in/android/mojo/libs
-cp out/android_debug//gen/mojo/public/java/bindings.jar third_party/google_sign_in/android/mojo/libs
-cp out/android_debug//gen/mojo/public/java/system.jar third_party/google_sign_in/android/mojo/libs
-cp out/android_debug/gen/third_party/google_sign_in/mojom/google_sign_in.mojom.dart third_party/google_sign_in/lib/generated
-(cd third_party/google_sign_in/android && ./gradlew build)
-cp -r third_party/google_sign_in/android/mojo/build/intermediates/ third_party/google_sign_in/lib/generated/android/ 2>&1 | grep -v 'Permission denied'
+    private FlutterGoogleSignIn mGoogleSignIn;
+    private static final int RC_SIGN_IN = 9001;  // Can be any integer you're not using as a request code
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mGoogleSignIn.onActivityResult(requestCode, resultCode, data);
+    }
 ```
 
+At the end of your activity's onCreate method, add the following:
+
+```
+        GoogleSignInOptions options = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                // Request additional scopes like this:
+                // .requestScopes(new Scope("..."))
+                .build();
+        mGoogleSignIn = new FlutterGoogleSignIn(this, flutterView, options, RC_SIGN_IN);
+```
+
+In your Dart code, you can now call APIs like GoogleSignIn.signIn(). Refer to the example app or the [API documentation](http://flutter.github.io/google_sign_in/) for usage.
+
+#### Compiling from source
+
+If you want to make changes to the FlutterGoogleSignIn class, you'll need to build from source rather than using the published binaries.
+
+In your application's build.gradle, change ```compile 'io.flutter.google_sign_in:google-sign-in:9.0.2``` to ```compile project(':googleSignIn')```.
+
+Create a soft link called googleSignIn in the ```android``` folder of your application. It should point to the ```android``` folder in the root of this repository.
+
+Add ':googleSignIn' to the list of includes in your application's settings.gradle.
+
+Copy bin/cache/artifacts/engine/android-arm/flutter.jar from your Flutter SDK into android/libs
+
+Run ```zip -d flutter.jar "assets/*" "lib/*"``` in the android/libs directory.
+
+You should now be able to build from source using Android Studio.

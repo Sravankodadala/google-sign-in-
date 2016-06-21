@@ -8,8 +8,19 @@ android {
     lintOptions {
         disable 'InvalidPackage'
     }
+
+    defaultConfig {
+        applicationId 'com.example.flutter.google_sign_in'
+    }
 }
 
 flutter {
     source '../..'
 }
+
+dependencies {
+    compile 'com.google.android.gms:play-services-auth:9.0.2'
+    compile 'io.flutter.google_sign_in:google-sign-in:0.0.1'
+}
+
+apply plugin: 'com.google.gms.google-services'
