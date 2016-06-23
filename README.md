@@ -8,11 +8,10 @@ Update android/local.properties to add flutter.sdk=/path/to/flutter/sdk
 
 For Android, go to the [Android Sign-In SDK instructions](https://developers.google.com/identity/sign-in/android/start)
 and follow the instructions to download a google-services.json file. Move this file
-to ```android/app/google-services.json```.
+to ```android/app/google-services.json```. You can now open the example/android folder in Android Studio and run the app on an Android device.
 
-You can now open the example/android folder in Android Studio and run the app on an Android device.
 
-iOS support is coming soon.
+For iOS, make sure you have CocoaPods installed and run ```pod install``` in the example/ios folder. You can now open ```example/ios/GoogleSignInExample.xcworkspace``` in Xcode. Go to the [iOS Sign-In SDK instructions](https://developers.google.com/identity/sign-in/ios/start) and follow the instructions to add a GoogleServices-Info.plist file to your project and to set up a URL type for REVERSED_CLIENT_ID to handle the callback. You should now be able to sign in through the iOS simulator or on a device.
 
 #### Adding to an existing Android project
 
@@ -78,3 +77,7 @@ Copy bin/cache/artifacts/engine/android-arm/flutter.jar from your Flutter SDK in
 Run ```zip -d flutter.jar "assets/*" "lib/*"``` in the android/libs directory.
 
 You should now be able to build from source using Android Studio.
+
+#### Adding to an existing iOS project
+
+Instructions for adding to an existing iOS project are coming soon.

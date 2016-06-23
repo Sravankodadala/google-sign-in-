@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:HelloServices.xcodeproj">
+      location = "self:GoogleSignInExample.xcodeproj">
    </FileRef>
 </Workspace>

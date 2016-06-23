@@ -7,11 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7A0AE19F1D1C735900047AEB /* FlutterGoogleSignIn.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A0AE19E1D1C735900047AEB /* FlutterGoogleSignIn.m */; };
+		7A0AE1A11D1C878A00047AEB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7A0AE1A01D1C878A00047AEB /* GoogleService-Info.plist */; };
+		8DE4566422D5C67B2E9B70D8 /* libPods-GoogleSignInExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B9F2C42481F4430A7FFD5E2C /* libPods-GoogleSignInExample.a */; };
 		9705A1C51CF9049000538489 /* app.dylib in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9740EEB81CF902C7004384FC /* app.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		9705A1C61CF904A100538489 /* Flutter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9740EEBA1CF902C7004384FC /* Flutter.framework */; };
 		9705A1C71CF904A300538489 /* Flutter.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9740EEBA1CF902C7004384FC /* Flutter.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		9740EEB41CF90195004384FC /* Flutter.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 9740EEB21CF90195004384FC /* Flutter.xcconfig */; };
-		9740EEB51CF90195004384FC /* Generated.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 9740EEB31CF90195004384FC /* Generated.xcconfig */; };
+		9740EEB41CF90195004384FC /* Shared.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 9740EEB21CF90195004384FC /* Shared.xcconfig */; };
+		9740EEB51CF90195004384FC /* Debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 9740EEB31CF90195004384FC /* Debug.xcconfig */; };
 		9740EEBB1CF902C7004384FC /* app.flx in Resources */ = {isa = PBXBuildFile; fileRef = 9740EEB71CF902C7004384FC /* app.flx */; };
 		97A38A351CFDEC880099F1B4 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A38A341CFDEC880099F1B4 /* AppDelegate.m */; };
 		97C146F31CF9000F007C117D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 97C146F21CF9000F007C117D /* main.m */; };
@@ -36,8 +39,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		9740EEB21CF90195004384FC /* Flutter.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Flutter.xcconfig; path = Flutter/Flutter.xcconfig; sourceTree = "<group>"; };
-		9740EEB31CF90195004384FC /* Generated.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Generated.xcconfig; path = Flutter/Generated.xcconfig; sourceTree = "<group>"; };
+		7A0AE19C1D1C726F00047AEB /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
+		7A0AE19D1D1C735900047AEB /* FlutterGoogleSignIn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlutterGoogleSignIn.h; sourceTree = "<group>"; };
+		7A0AE19E1D1C735900047AEB /* FlutterGoogleSignIn.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FlutterGoogleSignIn.m; sourceTree = "<group>"; };
+		7A0AE1A01D1C878A00047AEB /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		9740EEB21CF90195004384FC /* Shared.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Shared.xcconfig; path = Flutter/Shared.xcconfig; sourceTree = "<group>"; };
+		9740EEB31CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
 		9740EEB71CF902C7004384FC /* app.flx */ = {isa = PBXFileReference; lastKnownFileType = file; name = app.flx; path = Flutter/app.flx; sourceTree = "<group>"; };
 		9740EEB81CF902C7004384FC /* app.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = app.dylib; path = Flutter/app.dylib; sourceTree = "<group>"; };
 		9740EEBA1CF902C7004384FC /* Flutter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Flutter.framework; path = Flutter/Flutter.framework; sourceTree = "<group>"; };
@@ -49,6 +56,7 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B9F2C42481F4430A7FFD5E2C /* libPods-GoogleSignInExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-GoogleSignInExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +65,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9705A1C61CF904A100538489 /* Flutter.framework in Frameworks */,
+				8DE4566422D5C67B2E9B70D8 /* libPods-GoogleSignInExample.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -69,8 +78,9 @@
 				9740EEB71CF902C7004384FC /* app.flx */,
 				9740EEB81CF902C7004384FC /* app.dylib */,
 				9740EEBA1CF902C7004384FC /* Flutter.framework */,
-				9740EEB21CF90195004384FC /* Flutter.xcconfig */,
-				9740EEB31CF90195004384FC /* Generated.xcconfig */,
+				9740EEB21CF90195004384FC /* Shared.xcconfig */,
+				9740EEB31CF90195004384FC /* Debug.xcconfig */,
+				7A0AE19C1D1C726F00047AEB /* Release.xcconfig */,
 			);
 			name = Flutter;
 			sourceTree = "<group>";
@@ -81,6 +91,8 @@
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* GoogleSignInExample */,
 				97C146EF1CF9000F007C117D /* Products */,
+				D4A23EF62905F6FF3F512C8E /* Pods */,
+				A147E1B2C29596139338FA10 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -99,9 +111,12 @@
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
 				97C147021CF9000F007C117D /* Info.plist */,
+				7A0AE1A01D1C878A00047AEB /* GoogleService-Info.plist */,
 				97C146F11CF9000F007C117D /* Supporting Files */,
 				97A38A331CFDEC680099F1B4 /* AppDelegate.h */,
 				97A38A341CFDEC880099F1B4 /* AppDelegate.m */,
+				7A0AE19D1D1C735900047AEB /* FlutterGoogleSignIn.h */,
+				7A0AE19E1D1C735900047AEB /* FlutterGoogleSignIn.m */,
 			);
 			path = GoogleSignInExample;
 			sourceTree = "<group>";
@@ -114,6 +129,21 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		A147E1B2C29596139338FA10 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B9F2C42481F4430A7FFD5E2C /* libPods-GoogleSignInExample.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D4A23EF62905F6FF3F512C8E /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -121,11 +151,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "GoogleSignInExample" */;
 			buildPhases = (
+				ACB6FA997A24D2D24074CDDC /* [CP] Check Pods Manifest.lock */,
 				9740EEB61CF901F6004384FC /* ShellScript */,
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
+				B71F8BF85A2E30493BFCEE1A /* [CP] Embed Pods Frameworks */,
+				97F6E324B11ED65FFB757BD7 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -175,10 +208,11 @@
 			files = (
 				9740EEBB1CF902C7004384FC /* app.flx in Resources */,
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
-				9740EEB51CF90195004384FC /* Generated.xcconfig in Resources */,
-				9740EEB41CF90195004384FC /* Flutter.xcconfig in Resources */,
+				9740EEB51CF90195004384FC /* Debug.xcconfig in Resources */,
+				9740EEB41CF90195004384FC /* Shared.xcconfig in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
+				7A0AE1A11D1C878A00047AEB /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -198,6 +232,51 @@
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh $FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh";
 		};
+		97F6E324B11ED65FFB757BD7 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-GoogleSignInExample/Pods-GoogleSignInExample-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		ACB6FA997A24D2D24074CDDC /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		B71F8BF85A2E30493BFCEE1A /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-GoogleSignInExample/Pods-GoogleSignInExample-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -207,6 +286,7 @@
 			files = (
 				97A38A351CFDEC880099F1B4 /* AppDelegate.m in Sources */,
 				97C146F31CF9000F007C117D /* main.m in Sources */,
+				7A0AE19F1D1C735900047AEB /* FlutterGoogleSignIn.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -234,7 +314,7 @@
 /* Begin XCBuildConfiguration section */
 		97C147031CF9000F007C117D /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9740EEB21CF90195004384FC /* Flutter.xcconfig */;
+			baseConfigurationReference = 9740EEB31CF90195004384FC /* Debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -280,7 +360,7 @@
 		};
 		97C147041CF9000F007C117D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9740EEB21CF90195004384FC /* Flutter.xcconfig */;
+			baseConfigurationReference = 7A0AE19C1D1C726F00047AEB /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -320,7 +400,7 @@
 		};
 		97C147061CF9000F007C117D /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9740EEB21CF90195004384FC /* Flutter.xcconfig */;
+			baseConfigurationReference = 9740EEB31CF90195004384FC /* Debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ENABLE_BITCODE = NO;
@@ -341,7 +421,7 @@
 		};
 		97C147071CF9000F007C117D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9740EEB21CF90195004384FC /* Flutter.xcconfig */;
+			baseConfigurationReference = 7A0AE19C1D1C726F00047AEB /* Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ENABLE_BITCODE = NO;

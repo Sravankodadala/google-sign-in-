@@ -3,9 +3,9 @@
 // found in the LICENSE file.
 
 #import "AppDelegate.h"
+#import "FlutterGoogleSignIn.h"
 
 #import <Flutter/Flutter.h>
-#import "LocationProvider.h"
 
 @implementation AppDelegate {
     FlutterGoogleSignIn* _googleSignIn;
@@ -17,21 +17,19 @@
     FlutterViewController* flutterController = [[FlutterViewController alloc] initWithProject:project
                                                                                       nibName:nil
                                                                                        bundle:nil];
-    _googleSignIn = [[FlutterGoogleSignIn alloc] initWithController:_flutterController];
+    _googleSignIn = [[FlutterGoogleSignIn alloc] initWithController:flutterController];
 
     self.window.rootViewController = flutterController;
     [self.window makeKeyAndVisible];
     return YES;
 }
 
-- (BOOL)application:(UIApplication*)app
-            openURL:(NSURL*)url
-  sourceApplication:(NSString*)sourceApplication
-         annotation:(id)annotation {
-    return [_googleSignIn application:app
-                           openURL:url
-                 sourceApplication:sourceApplication
-                        annotation:annotation];
+- (BOOL)application:(UIApplication *)app
+            openURL:(NSURL *)url
+            options:(NSDictionary *)options {
+    return [[GIDSignIn sharedInstance] handleURL:url
+                               sourceApplication:options[UIApplicationOpenURLOptionsSourceApplicationKey]
+                                      annotation:options[UIApplicationOpenURLOptionsAnnotationKey]];
 }
 
 @end

@@ -33,7 +33,6 @@ class SignInDemoState extends State<SignInDemo> {
   }
 
   void _handleGoogleSignInResult(GoogleSignInResult result) {
-    print("_handleGoogleSignInResult $result ${result.signInAccount}");
     setState(() => _currentUser = result.signInAccount);
   }
 

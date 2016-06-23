@@ -3,9 +3,9 @@ dependencies:
   flutter:
     path: ../../flutter/packages/flutter
   google_sign_in:
-    git: git://github.com/flutter/google_sign_in.git
+    # git: git://github.com/flutter/google_sign_in.git
     # Use an absolute path to your local checkout instead when developing locally
-    # path: /Users/USERNAME/git/google_sign_in
+    path: ..
 dev_dependencies:
   test: any # flutter_test provides the version constraints
   flutter_test:
