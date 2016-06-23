@@ -13,7 +13,6 @@
 		9740EEB41CF90195004384FC /* Flutter.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 9740EEB21CF90195004384FC /* Flutter.xcconfig */; };
 		9740EEB51CF90195004384FC /* Generated.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 9740EEB31CF90195004384FC /* Generated.xcconfig */; };
 		9740EEBB1CF902C7004384FC /* app.flx in Resources */ = {isa = PBXBuildFile; fileRef = 9740EEB71CF902C7004384FC /* app.flx */; };
-		977505191CFDF23500BC28DA /* LocationProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 977505181CFDF23500BC28DA /* LocationProvider.m */; };
 		97A38A351CFDEC880099F1B4 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 97A38A341CFDEC880099F1B4 /* AppDelegate.m */; };
 		97C146F31CF9000F007C117D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 97C146F21CF9000F007C117D /* main.m */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
@@ -42,11 +41,9 @@
 		9740EEB71CF902C7004384FC /* app.flx */ = {isa = PBXFileReference; lastKnownFileType = file; name = app.flx; path = Flutter/app.flx; sourceTree = "<group>"; };
 		9740EEB81CF902C7004384FC /* app.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = app.dylib; path = Flutter/app.dylib; sourceTree = "<group>"; };
 		9740EEBA1CF902C7004384FC /* Flutter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Flutter.framework; path = Flutter/Flutter.framework; sourceTree = "<group>"; };
-		977505171CFDF21E00BC28DA /* LocationProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LocationProvider.h; sourceTree = "<group>"; };
-		977505181CFDF23500BC28DA /* LocationProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocationProvider.m; sourceTree = "<group>"; };
 		97A38A331CFDEC680099F1B4 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		97A38A341CFDEC880099F1B4 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		97C146EE1CF9000F007C117D /* HelloServices.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HelloServices.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		97C146EE1CF9000F007C117D /* GoogleSignInExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GoogleSignInExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97C146F21CF9000F007C117D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		97C146FB1CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -82,7 +79,7 @@
 			isa = PBXGroup;
 			children = (
 				9740EEB11CF90186004384FC /* Flutter */,
-				97C146F01CF9000F007C117D /* HelloServices */,
+				97C146F01CF9000F007C117D /* GoogleSignInExample */,
 				97C146EF1CF9000F007C117D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,12 +87,12 @@
 		97C146EF1CF9000F007C117D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				97C146EE1CF9000F007C117D /* HelloServices.app */,
+				97C146EE1CF9000F007C117D /* GoogleSignInExample.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		97C146F01CF9000F007C117D /* HelloServices */ = {
+		97C146F01CF9000F007C117D /* GoogleSignInExample */ = {
 			isa = PBXGroup;
 			children = (
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
@@ -105,10 +102,8 @@
 				97C146F11CF9000F007C117D /* Supporting Files */,
 				97A38A331CFDEC680099F1B4 /* AppDelegate.h */,
 				97A38A341CFDEC880099F1B4 /* AppDelegate.m */,
-				977505171CFDF21E00BC28DA /* LocationProvider.h */,
-				977505181CFDF23500BC28DA /* LocationProvider.m */,
 			);
-			path = HelloServices;
+			path = GoogleSignInExample;
 			sourceTree = "<group>";
 		};
 		97C146F11CF9000F007C117D /* Supporting Files */ = {
@@ -122,9 +117,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		97C146ED1CF9000F007C117D /* HelloServices */ = {
+		97C146ED1CF9000F007C117D /* GoogleSignInExample */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "HelloServices" */;
+			buildConfigurationList = 97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "GoogleSignInExample" */;
 			buildPhases = (
 				9740EEB61CF901F6004384FC /* ShellScript */,
 				97C146EA1CF9000F007C117D /* Sources */,
@@ -136,9 +131,9 @@
 			);
 			dependencies = (
 			);
-			name = HelloServices;
+			name = GoogleSignInExample;
 			productName = HelloServices;
-			productReference = 97C146EE1CF9000F007C117D /* HelloServices.app */;
+			productReference = 97C146EE1CF9000F007C117D /* GoogleSignInExample.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -155,7 +150,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 97C146E91CF9000F007C117D /* Build configuration list for PBXProject "HelloServices" */;
+			buildConfigurationList = 97C146E91CF9000F007C117D /* Build configuration list for PBXProject "GoogleSignInExample" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -168,7 +163,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				97C146ED1CF9000F007C117D /* HelloServices */,
+				97C146ED1CF9000F007C117D /* GoogleSignInExample */,
 			);
 		};
 /* End PBXProject section */
@@ -212,7 +207,6 @@
 			files = (
 				97A38A351CFDEC880099F1B4 /* AppDelegate.m in Sources */,
 				97C146F31CF9000F007C117D /* main.m in Sources */,
-				977505191CFDF23500BC28DA /* LocationProvider.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -334,14 +328,14 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				INFOPLIST_FILE = HelloServices/Info.plist;
+				INFOPLIST_FILE = GoogleSignInExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.HelloServices;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.flutter.GoogleSignIn;
+				PRODUCT_NAME = GoogleSignInExample;
 			};
 			name = Debug;
 		};
@@ -355,21 +349,21 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				INFOPLIST_FILE = HelloServices/Info.plist;
+				INFOPLIST_FILE = GoogleSignInExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.HelloServices;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.flutter.GoogleSignIn;
+				PRODUCT_NAME = GoogleSignInExample;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		97C146E91CF9000F007C117D /* Build configuration list for PBXProject "HelloServices" */ = {
+		97C146E91CF9000F007C117D /* Build configuration list for PBXProject "GoogleSignInExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				97C147031CF9000F007C117D /* Debug */,
@@ -378,7 +372,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "HelloServices" */ = {
+		97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "GoogleSignInExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				97C147061CF9000F007C117D /* Debug */,

@@ -8,7 +8,7 @@
 #import "LocationProvider.h"
 
 @implementation AppDelegate {
-    LocationProvider* _locationProvider;
+    FlutterGoogleSignIn* _googleSignIn;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -17,12 +17,21 @@
     FlutterViewController* flutterController = [[FlutterViewController alloc] initWithProject:project
                                                                                       nibName:nil
                                                                                        bundle:nil];
-    _locationProvider = [[LocationProvider alloc] init];
-    [flutterController addMessageListener:_locationProvider];
+    _googleSignIn = [[FlutterGoogleSignIn alloc] initWithController:_flutterController];
 
     self.window.rootViewController = flutterController;
     [self.window makeKeyAndVisible];
     return YES;
+}
+
+- (BOOL)application:(UIApplication*)app
+            openURL:(NSURL*)url
+  sourceApplication:(NSString*)sourceApplication
+         annotation:(id)annotation {
+    return [_googleSignIn application:app
+                           openURL:url
+                 sourceApplication:sourceApplication
+                        annotation:annotation];
 }
 
 @end
