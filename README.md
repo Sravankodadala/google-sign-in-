@@ -1,8 +1,11 @@
-# xxpluginxx
+# google_sign_in
 
-A new flutter plugin project.
+A Flutter plugin for [Google Sign In](https://developers.google.com/identity/).
 
-## Getting Started
+Note: This is a work-in-progress, and is not fully supported by the Flutter team.
+(For example, we don't have this under continuous integration and testing.)
 
-For help getting started with Flutter, view our online
-[documentation](http://flutter.io/).
+## Issues and feedback
+
+Please file [issues](https://github.com/flutter/flutter/issues/new)
+to send feedback or report a bug. Thank you!

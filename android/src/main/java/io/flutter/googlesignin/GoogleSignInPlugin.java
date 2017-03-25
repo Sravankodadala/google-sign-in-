@@ -1,4 +1,4 @@
-package com.yourcompany.xxpluginxx;
+package io.flutter.googlesignin;
 
 import io.flutter.app.FlutterActivity;
 import io.flutter.plugin.common.FlutterMethodChannel;
@@ -10,18 +10,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * XxPluginXx
+ * GoogleSignIn
  */
-public class XxPluginXx implements MethodCallHandler {
+public class GoogleSignInPlugin implements MethodCallHandler {
   private FlutterActivity activity;
 
   public static void register(FlutterActivity activity) {
-    new XxPluginXx(activity);
+    new GoogleSignInPlugin(activity);
   }
 
-  private XxPluginXx(FlutterActivity activity) {
+  private GoogleSignInPlugin(FlutterActivity activity) {
     this.activity = activity;
-    new FlutterMethodChannel(activity.getFlutterView(), "xxpluginxx").setMethodCallHandler(this);
+    new FlutterMethodChannel(activity.getFlutterView(), "google_sign_in").setMethodCallHandler(this);
   }
 
   @Override
