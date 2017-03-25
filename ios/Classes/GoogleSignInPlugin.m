@@ -1,6 +1,7 @@
 #import "GoogleSignInPlugin.h"
 
 @implementation GoogleSignInPlugin {
+  NSMutableArray* _callbacks;
 }
 
 - (instancetype)initWithFlutterView:(FlutterViewController *)flutterView {
@@ -10,16 +11,58 @@
         methodChannelNamed:@"plugins.flutter.io/google_sign_in"
            binaryMessenger:flutterView
                      codec:[FlutterStandardMethodCodec sharedInstance]];
+    [GIDSignIn sharedInstance].uiDelegate = flutterView;
     [channel setMethodCallHandler:^(FlutterMethodCall *call,
                                     FlutterResultReceiver result) {
-      if ([@"getPlatformVersion" isEqualToString:call.method]) {
-        result([@"iOS " stringByAppendingString:[[UIDevice currentDevice]
-                                                    systemVersion]],
-               nil);
-      }
+      [self handleMethodCall:call result:result];
     }];
   }
   return self;
+}
+
+- (void)handleMethodCall:(FlutterMethodCall *)call result:(FlutterResultReceiver)result {
+    if ([call.method isEqualToString:@"init"]) {
+        [GIDSignIn sharedInstance].clientID = call.arguments[@"clientId"];
+        [GIDSignIn sharedInstance].scopes = call.arguments[@"scopes"];
+        [GIDSignIn sharedInstance].hostedDomain = call.arguments[@"hostedDomain"];
+        result(@{ @"success" : @(YES) }, nil);
+    } else if ([call.method isEqualToString:@"signInSilently"]) {
+        [_callbacks insertObject:result atIndex:0];
+        [[GIDSignIn sharedInstance] signInSilently];
+    } else if ([call.method isEqualToString:@"signIn"]) {
+        [_callbacks insertObject:result atIndex:0];
+        [[GIDSignIn sharedInstance] signIn];
+    } else if ([call.method isEqualToString:@"getToken"]) {
+        GIDGoogleUser *currentUser = [GIDSignIn sharedInstance].currentUser;
+        GIDAuthentication *auth = currentUser.authentication;
+        [auth getTokensWithHandler:^void(GIDAuthentication* authentication,
+                                         NSError* error) {
+            NSDictionary* response;
+            if (error == nil) {
+                response = @{
+                             @"success" : @(YES),
+                             @"token" : authentication.accessToken,
+                             };
+            } else {
+                response = @{
+                             @"success" : @(NO),
+                             @"reason" : error.domain,
+                             @"detail" : error.localizedDescription,
+                             };
+            }
+            result(response, nil);
+        }];
+    } else if ([call.method isEqualToString:@"signOut"]) {
+        [[GIDSignIn sharedInstance] signOut];
+        result(@{ @"success" : @(YES) }, nil);
+    } else if ([call.method isEqualToString:@"disconnect"]) {
+        [_callbacks insertObject:result atIndex:0];
+        [[GIDSignIn sharedInstance] disconnect];
+    } else {
+        [NSException
+         raise:@"Unexpected argument"
+         format:@"FlutterGoogleSignIn received an unexpected method call"];
+    }
 }
 
 - (BOOL)handleURL:(NSURL *)url

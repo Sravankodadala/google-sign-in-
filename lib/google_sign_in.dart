@@ -166,7 +166,7 @@ class GoogleSignIn {
       _streamController.stream;
 
   Future<GoogleSignInResult> _callMethod(String method) async {
-    Map<String, dynamic> response = _channel.invokeMethod(method);
+    Map<String, dynamic> response = await _channel.invokeMethod(method);
     GoogleSignInResult result = new GoogleSignInResult._(response);
     _currentUser = result.signInAccount;
     _streamController.add(_currentUser);
