@@ -139,7 +139,7 @@ class GoogleSignIn {
       assert(_clientId != null || !Platform.isIOS);
       GoogleSignIn googleSignIn = new GoogleSignIn._();
       _instance = _channel.invokeMethod(
-        init,
+        "init",
         <String, dynamic>{
           'clientId': _clientId,
           'scopes': _scopes,

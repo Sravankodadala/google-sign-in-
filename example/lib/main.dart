@@ -111,7 +111,7 @@ class SignInDemoState extends State<SignInDemo> {
       return new Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            new ListItem(
+            new ListTile(
                 leading: new CircleAvatar(
                     child: new ClipOval(
                         child: new Image(
