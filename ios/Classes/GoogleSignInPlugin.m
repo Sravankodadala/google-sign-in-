@@ -7,7 +7,7 @@
   self = [super init];
   if (self) {
     FlutterMethodChannel *channel = [FlutterMethodChannel
-        methodChannelNamed:@"xxpluginxx"
+        methodChannelNamed:@"plugins.flutter.io/google_sign_in"
            binaryMessenger:flutterView
                      codec:[FlutterStandardMethodCodec sharedInstance]];
     [channel setMethodCallHandler:^(FlutterMethodCall *call,
