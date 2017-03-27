@@ -114,10 +114,6 @@ Add the following code to your AppDelegate:
 }
 ```
 
-## Known issues
-
-This plugin uses several classes will eventually be added to the Flutter engine.
-
 ## Issues and feedback
 
 Please file [issues](https://github.com/flutter/flutter/issues/new)

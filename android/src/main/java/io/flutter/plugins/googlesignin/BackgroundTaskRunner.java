@@ -15,8 +15,8 @@ import java.util.concurrent.TimeUnit;
 
 /** A class for running tasks in a background thread.
   *
-  * TODO(jackson): If this is useful for other plugins, consider including it
-  *  in the Flutter engine
+  * TODO(jackson): If this class is useful for other plugins, consider including
+  * it in a shared library or in the Flutter engine
   */
 public final class BackgroundTaskRunner {
 

@@ -10,8 +10,8 @@ import java.util.concurrent.Executor;
 
 /** Factory and utility methods for {@code Executor}.
   *
-  *  TODO(jackson): If this is useful for other plugins, consider including it
-  *  in the Flutter engine
+  * TODO(jackson): If this class is useful for other plugins, consider including
+  * it in a shared library or in the Flutter engine
   */
 public final class Executors {
 
