@@ -1,3 +1,7 @@
+// Copyright 2017, the Flutter project authors.  Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
+
 #import "GoogleSignInPlugin.h"
 
 @interface NSError(FlutterError)
@@ -109,8 +113,10 @@ didSignInForUser:(GIDGoogleUser*)user
 - (void)respondWithAccount:(id)account
                     error:(NSError *)error
 {
-  FlutterResultReceiver accountRequest = [_accountRequests lastObject];
-  [_accountRequests removeLastObject];
-  accountRequest(account, error.flutterError);
+  NSArray<FlutterResultReceiver> *requests = _accountRequests;
+  _accountRequests = [[NSMutableArray alloc] init];
+  for (FlutterResultReceiver accountRequest in requests) {
+    accountRequest(account, error.flutterError);
+  }
 }
 @end
