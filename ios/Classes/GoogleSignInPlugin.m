@@ -1,7 +1,7 @@
 #import "GoogleSignInPlugin.h"
 
 @implementation GoogleSignInPlugin {
-  NSMutableArray* _callbacks;
+  NSMutableArray<FlutterResultReceiver>* _callbacks;
 }
 
 - (instancetype)initWithFlutterView:(FlutterViewController *)flutterView {
@@ -11,6 +11,8 @@
         methodChannelNamed:@"plugins.flutter.io/google_sign_in"
            binaryMessenger:flutterView
                      codec:[FlutterStandardMethodCodec sharedInstance]];
+    _callbacks = [[NSMutableArray alloc] init];
+    [GIDSignIn sharedInstance].delegate = self;
     [GIDSignIn sharedInstance].uiDelegate = flutterView;
     [channel setMethodCallHandler:^(FlutterMethodCall *call,
                                     FlutterResultReceiver result) {
@@ -73,51 +75,42 @@
                                     annotation:annotation];
 }
 
-- (void)signIn:(GIDSignIn *)signIn
-    didSignInForUser:(GIDGoogleUser *)user
-           withError:(NSError *)error {
-  // NSDictionary *response;
-  // if (error != nil) {
-  //     response = @{ @"isSuccess": @(NO) };
-  // } else {
-  //     NSURL *photoUrl;
-  //     if (user.profile.hasImage) {
-  //         // TODO(jackson): Allow configuring the image dimensions.
-  //         // 256px is probably more than needed for most devices (64dp @
-  //         320dpi = 128px)
-  //         photoUrl = [user.profile imageURLWithDimension:256];
-  //     }
-  //     response = @{
-  //         @"isSuccess": @(YES),
-  //         @"signInAccount": @{
-  //             @"displayName": user.profile.name ?: [NSNull null],
-  //             @"email": user.profile.email ?: [NSNull null],
-  //             @"id": user.userID ?: [NSNull null],
-  //             @"idToken": user.authentication.idToken ?: [NSNull null],
-  //             @"serverAuthCode": user.serverAuthCode ?: [NSNull null],
-  //             @"photoUrl": [photoUrl absoluteString] ?: [NSNull null],
-  //         }
-  //     };
-  // }
-  // NSData* data = [NSJSONSerialization dataWithJSONObject:response options:0
-  // error:nil];
-  // NSString *message = [[NSString alloc] initWithData:data
-  // encoding:NSUTF8StringEncoding];
-  // void (^callback)(NSString*) = [_callbacks lastObject];
-  // [_callbacks removeLastObject];
-  // callback(message);
+- (void)signIn:(GIDSignIn*)signIn
+didSignInForUser:(GIDGoogleUser*)user
+     withError:(NSError*)error {
+  NSDictionary* response;
+  if (error != nil) {
+    response = @{ @"success" : @(NO) };
+  } else {
+    NSURL* photoUrl;
+    if (user.profile.hasImage) {
+      // TODO(jackson): Allow configuring the image dimensions.
+      // 256px is probably more than needed for most devices (64dp @ 320dpi =
+      // 128px)
+      photoUrl = [user.profile imageURLWithDimension:256];
+    }
+    response = @{
+      @"success" : @(YES),
+      @"signInAccount" : @{
+        @"displayName" : user.profile.name ?: [NSNull null],
+        @"email" : user.profile.email ?: [NSNull null],
+        @"id" : user.userID ?: [NSNull null],
+        @"photoUrl" : [photoUrl absoluteString] ?: [NSNull null],
+      }
+    };
+  }
+  FlutterResultReceiver result = [_callbacks lastObject];
+  [_callbacks removeLastObject];
+  result(response, nil);
 }
 
 - (void)signIn:(GIDSignIn *)signIn
     didDisconnectWithUser:(GIDGoogleUser *)user
                 withError:(NSError *)error {
-  // NSDictionary *response = @{ @"isSuccess": @(YES) };
-  // NSData* data = [NSJSONSerialization dataWithJSONObject:response options:0
-  // error:nil];
-  // NSString *message = [[NSString alloc] initWithData:data
-  // encoding:NSUTF8StringEncoding];
-  // ((void(^)(NSString*))[_callbacks lastObject])(message);
-  // [_callbacks removeLastObject];
+  NSDictionary *response = @{ @"isSuccess": @(YES) };
+  FlutterResultReceiver result = [_callbacks lastObject];
+  [_callbacks removeLastObject];
+  result(response, nil);
 }
 
 @end
