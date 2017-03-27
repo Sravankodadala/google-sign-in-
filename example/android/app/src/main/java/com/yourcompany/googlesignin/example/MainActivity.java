@@ -2,7 +2,7 @@ package com.yourcompany.googlesignin.example;
 
 import android.os.Bundle;
 import android.content.Intent;
-import io.flutter.plugins.googlesignin.FlutterActivity;
+import io.flutter.app.FlutterActivity;
 import io.flutter.plugins.googlesignin.GoogleSignInPlugin;
 
 public class MainActivity extends FlutterActivity {
