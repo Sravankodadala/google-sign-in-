@@ -37,14 +37,11 @@ class GoogleSignInAccount {
       throw new StateError('User is no longer signed in.');
     }
 
-    Map<String, dynamic> response = await GoogleSignIn._channel.invokeMethod(
+    String response = await GoogleSignIn._channel.invokeMethod(
       'getToken',
       <String, dynamic>{'email': email},
     );
-    if (!response['success']) {
-      throw new GoogleSignInError._(response);
-    }
-    return response['token'];
+    return response;
   }
 
   Future<Map<String, String>> get authHeaders async {
@@ -68,12 +65,10 @@ class GoogleSignInAccount {
 }
 
 class GoogleSignInResult {
-  final bool success;
   final GoogleSignInAccount signInAccount;
 
   GoogleSignInResult._(Map<String, dynamic> message)
-      : success = message['success'],
-        signInAccount = message['signInAccount'] != null
+      : signInAccount = message['signInAccount'] != null
             ? new GoogleSignInAccount._(
             message['signInAccount'] as Map<String, String>)
             : null;
@@ -81,8 +76,7 @@ class GoogleSignInResult {
   @override
   String toString() {
     Map<String, dynamic> data = <String, dynamic>{
-      'success': success,
-      'account': signInAccount,
+      'signInAccount': signInAccount,
     };
     return 'GoogleSignInResult:$data';
   }

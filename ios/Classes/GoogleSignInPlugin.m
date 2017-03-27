@@ -1,7 +1,19 @@
 #import "GoogleSignInPlugin.h"
 
+@interface NSError(FlutterError)
+@property (readonly, nonatomic) FlutterError *flutterError;
+@end
+
+@implementation NSError(FlutterError)
+- (FlutterError *)flutterError {
+  return [FlutterError errorWithCode:[NSNumber numberWithInt:self.code]
+                             message:self.domain
+                             details:self.localizedDescription];
+}
+@end
+
 @implementation GoogleSignInPlugin {
-  NSMutableArray<FlutterResultReceiver>* _callbacks;
+  NSMutableArray<FlutterResultReceiver>* _accountRequests;
 }
 
 - (instancetype)initWithFlutterView:(FlutterViewController *)flutterView {
@@ -11,7 +23,7 @@
         methodChannelNamed:@"plugins.flutter.io/google_sign_in"
            binaryMessenger:flutterView
                      codec:[FlutterStandardMethodCodec sharedInstance]];
-    _callbacks = [[NSMutableArray alloc] init];
+    _accountRequests = [[NSMutableArray alloc] init];
     [GIDSignIn sharedInstance].delegate = self;
     [GIDSignIn sharedInstance].uiDelegate = flutterView;
     [channel setMethodCallHandler:^(FlutterMethodCall *call,
@@ -29,36 +41,23 @@
         [GIDSignIn sharedInstance].hostedDomain = call.arguments[@"hostedDomain"];
         result(@{ @"success" : @(YES) }, nil);
     } else if ([call.method isEqualToString:@"signInSilently"]) {
-        [_callbacks insertObject:result atIndex:0];
+        [_accountRequests insertObject:result atIndex:0];
         [[GIDSignIn sharedInstance] signInSilently];
     } else if ([call.method isEqualToString:@"signIn"]) {
-        [_callbacks insertObject:result atIndex:0];
+        [_accountRequests insertObject:result atIndex:0];
         [[GIDSignIn sharedInstance] signIn];
     } else if ([call.method isEqualToString:@"getToken"]) {
         GIDGoogleUser *currentUser = [GIDSignIn sharedInstance].currentUser;
         GIDAuthentication *auth = currentUser.authentication;
         [auth getTokensWithHandler:^void(GIDAuthentication* authentication,
                                          NSError* error) {
-            NSDictionary* response;
-            if (error == nil) {
-                response = @{
-                             @"success" : @(YES),
-                             @"token" : authentication.accessToken,
-                             };
-            } else {
-                response = @{
-                             @"success" : @(NO),
-                             @"reason" : error.domain,
-                             @"detail" : error.localizedDescription,
-                             };
-            }
-            result(response, nil);
+          result(authentication.accessToken, error.flutterError);
         }];
     } else if ([call.method isEqualToString:@"signOut"]) {
         [[GIDSignIn sharedInstance] signOut];
-        result(@{ @"success" : @(YES) }, nil);
+        [self respondWithAccount:@{} error:nil];
     } else if ([call.method isEqualToString:@"disconnect"]) {
-        [_callbacks insertObject:result atIndex:0];
+        [_accountRequests insertObject:result atIndex:0];
         [[GIDSignIn sharedInstance] disconnect];
     } else {
         [NSException
@@ -80,7 +79,7 @@ didSignInForUser:(GIDGoogleUser*)user
      withError:(NSError*)error {
   NSDictionary* response;
   if (error != nil) {
-    response = @{ @"success" : @(NO) };
+    [self respondWithAccount:nil error:error];
   } else {
     NSURL* photoUrl;
     if (user.profile.hasImage) {
@@ -89,28 +88,29 @@ didSignInForUser:(GIDGoogleUser*)user
       // 128px)
       photoUrl = [user.profile imageURLWithDimension:256];
     }
-    response = @{
-      @"success" : @(YES),
-      @"signInAccount" : @{
-        @"displayName" : user.profile.name ?: [NSNull null],
-        @"email" : user.profile.email ?: [NSNull null],
-        @"id" : user.userID ?: [NSNull null],
-        @"photoUrl" : [photoUrl absoluteString] ?: [NSNull null],
-      }
-    };
+    [self respondWithAccount:@{
+                               @"signInAccount": @{
+                                 @"displayName" : user.profile.name ?: [NSNull null],
+                                 @"email" : user.profile.email ?: [NSNull null],
+                                 @"id" : user.userID ?: [NSNull null],
+                                 @"photoUrl" : [photoUrl absoluteString] ?: [NSNull null],
+                               }
+                             }
+                      error:nil];
   }
-  FlutterResultReceiver result = [_callbacks lastObject];
-  [_callbacks removeLastObject];
-  result(response, nil);
 }
 
 - (void)signIn:(GIDSignIn *)signIn
     didDisconnectWithUser:(GIDGoogleUser *)user
                 withError:(NSError *)error {
-  NSDictionary *response = @{ @"isSuccess": @(YES) };
-  FlutterResultReceiver result = [_callbacks lastObject];
-  [_callbacks removeLastObject];
-  result(response, nil);
+  [self respondWithAccount:@{} error:nil];
 }
 
+- (void)respondWithAccount:(id)account
+                    error:(NSError *)error
+{
+  FlutterResultReceiver accountRequest = [_accountRequests lastObject];
+  [_accountRequests removeLastObject];
+  accountRequest(account, error.flutterError);
+}
 @end
