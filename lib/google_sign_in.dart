@@ -56,16 +56,10 @@ class GoogleSignInAccount {
 class GoogleSignIn {
   static const PlatformMethodChannel _channel =
       const PlatformMethodChannel('plugins.flutter.io/google_sign_in');
-  static String _clientId;
   static List<String> _scopes;
   static String _hostedDomain;
 
   /// Initializes global sign-in configuration settings.
-  ///
-  /// The [clientId] was assigned to your app when it was registered with Google
-  /// and can be found in the [Google API console](console.developers.google.com)
-  /// or in `GoogleServices-Info.plist` on iOS. It is currently required on iOS
-  /// and ignored on Android.
   ///
   /// The list of [scopes] are OAuth scope codes to request when signing in.
   /// These scope codes will determine the level of data access that is granted
@@ -75,12 +69,10 @@ class GoogleSignIn {
   /// setting this, sign in will be restricted to accounts of the user in the
   /// specified domain. By default, the list of accounts will not be restricted.
   static void initialize({
-    String clientId,
     List<String> scopes,
     String hostedDomain,
   }) {
     assert(_instance == null);
-    _clientId = clientId;
     _scopes = scopes;
     _hostedDomain = hostedDomain;
   }
@@ -100,11 +92,9 @@ class GoogleSignIn {
   /// unable to sign the user in.
   static Future<GoogleSignIn> get instance {
     if (_instance == null) {
-      assert(_clientId != null || !Platform.isIOS);
       _instance = _channel.invokeMethod(
         "init",
         <String, dynamic>{
-          'clientId': _clientId,
           'scopes': _scopes,
           'hostedDomain': _hostedDomain,
         },

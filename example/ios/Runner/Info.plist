@@ -25,8 +25,8 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.yourcompany.examples.googlesignin</string>
-				<string>com.googleusercontent.apps.680888876100-5bji9nol0un22ucd19olo3ni597jgm60</string>
+				<string>com.yourcompany.googlesignin.example</string>
+				<string>com.googleusercontent.apps.861823949799-vc35cprkp249096uujjn0vvnmcvjppkn</string>
 			</array>
 		</dict>
 	</array>

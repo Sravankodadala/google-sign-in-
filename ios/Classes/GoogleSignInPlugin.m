@@ -40,10 +40,11 @@
 
 - (void)handleMethodCall:(FlutterMethodCall *)call result:(FlutterResultReceiver)result {
     if ([call.method isEqualToString:@"init"]) {
-        [GIDSignIn sharedInstance].clientID = call.arguments[@"clientId"];
+        NSError *error;
+        [[GGLContext sharedInstance] configureWithError:&error];
         [GIDSignIn sharedInstance].scopes = call.arguments[@"scopes"];
         [GIDSignIn sharedInstance].hostedDomain = call.arguments[@"hostedDomain"];
-        result(@{ @"success" : @(YES) }, nil);
+        result(nil, error.flutterError);
     } else if ([call.method isEqualToString:@"signInSilently"]) {
         [_accountRequests insertObject:result atIndex:0];
         [[GIDSignIn sharedInstance] signInSilently];
