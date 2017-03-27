@@ -52,24 +52,6 @@ class GoogleSignInAccount {
   }
 }
 
-class GoogleSignInResult {
-  final GoogleSignInAccount signInAccount;
-
-  GoogleSignInResult._(Map<String, dynamic> message)
-      : signInAccount = message['signInAccount'] != null
-            ? new GoogleSignInAccount._(
-            message['signInAccount'] as Map<String, String>)
-            : null;
-
-  @override
-  String toString() {
-    Map<String, dynamic> data = <String, dynamic>{
-      'signInAccount': signInAccount,
-    };
-    return 'GoogleSignInResult:$data';
-  }
-}
-
 /// GoogleSignIn allows you to authenticate Google users.
 class GoogleSignIn {
   static const PlatformMethodChannel _channel =
@@ -141,12 +123,11 @@ class GoogleSignIn {
   Stream<GoogleSignInAccount> get onCurrentUserChanged =>
       _streamController.stream;
 
-  Future<GoogleSignInResult> _callMethod(String method) async {
+  Future<GoogleSignInAccount> _callMethod(String method) async {
     Map<String, dynamic> response = await _channel.invokeMethod(method);
-    GoogleSignInResult result = new GoogleSignInResult._(response);
-    _currentUser = result.signInAccount;
+    _currentUser = response != null ? new GoogleSignInAccount._(response): null;
     _streamController.add(_currentUser);
-    return result;
+    return _currentUser;
   }
 
   /// The currently signed in account, or null if the user is signed out
@@ -154,15 +135,15 @@ class GoogleSignIn {
   GoogleSignInAccount get currentUser => _currentUser;
 
   /// Attempts to sign in a previously authenticated user without interaction.
-  Future<GoogleSignInResult> signInSilently() => _callMethod('signInSilently');
+  Future<GoogleSignInAccount> signInSilently() => _callMethod('signInSilently');
 
   /// Starts the sign-in process.
-  Future<GoogleSignInResult> signIn() => _callMethod('signIn');
+  Future<GoogleSignInAccount> signIn() => _callMethod('signIn');
 
   /// Marks current user as being in the signed out state.
-  Future<GoogleSignInResult> signOut() => _callMethod('signOut');
+  Future<GoogleSignInAccount> signOut() => _callMethod('signOut');
 
   /// Disconnects the current user from the app and revokes previous
   /// authentication.
-  Future<GoogleSignInResult> disconnect() => _callMethod('disconnect');
+  Future<GoogleSignInAccount> disconnect() => _callMethod('disconnect');
 }

@@ -91,8 +91,11 @@ public class GoogleSignInPlugin
   private List<String> requestedScopes;
   private PendingOperation pendingOperation;
 
-  public static void register(FlutterActivity activity) {
-    new GoogleSignInPlugin(activity, new BackgroundTaskRunner(1), REQUEST_CODE);
+  public static GoogleSignInPlugin register(FlutterActivity activity) {
+    return new GoogleSignInPlugin(
+        activity,
+        new BackgroundTaskRunner(1),
+        REQUEST_CODE);
   }
 
   @VisibleForTesting
@@ -109,10 +112,12 @@ public class GoogleSignInPlugin
 
   @Override
   public void onMethodCall(MethodCall call, Response response) {
-    final JSONObject arguments = (JSONObject) call.arguments;
+    HashMap<String, Object> arguments = (HashMap<String, Object>) call.arguments;
     switch (call.method) {
       case METHOD_INIT:
-        init(response, getScopesArgument(arguments), getStringArgument(arguments, "hostedDomain"));
+        init(response,
+            (List<String>) arguments.get("scopes"),
+            (String) arguments.get("hostedDomain"));
         break;
 
       case METHOD_SIGN_IN_SILENTLY:
@@ -124,7 +129,7 @@ public class GoogleSignInPlugin
         break;
 
       case METHOD_GET_TOKEN:
-        getToken(response, getStringArgument(arguments, "email"));
+        getToken(response, (String) arguments.get("email"));
         break;
 
       case METHOD_SIGN_OUT:
@@ -139,37 +144,6 @@ public class GoogleSignInPlugin
         throw new IllegalArgumentException("Unknown method " + call.method);
     }
   }
-
-  /** Extracts the list of scopes from the specified arguments. */
-  private static List<String> getScopesArgument(JSONObject arguments) {
-    List<String> result = Lists.newArrayList();
-    try {
-      if (!arguments.isNull("scopes")) {
-        JSONArray scopes = arguments.getJSONArray("scopes");
-        for (int i = 0; i < scopes.length(); i++) {
-          result.add(scopes.getString(i));
-        }
-      }
-    } catch (JSONException e) {
-      Log.e(TAG, "JSON exception", e);
-    }
-    return result;
-  }
-
-  /**
-    * Extracts the argument with the specified ket from the specified arguments object, expecting it
-    * to be a String.
-    */
-   private static String getStringArgument(JSONObject arguments, String key) {
-     try {
-       if (!arguments.isNull(key)) {
-         return arguments.getString(key);
-       }
-     } catch (JSONException e) {
-       Log.e(TAG, "JSON exception", e);
-     }
-     return null;
-   }
 
    /**
     * Initializes this listener so that it is ready to perform other operations. The Dart code
@@ -337,7 +311,7 @@ public class GoogleSignInPlugin
                @Override
                public void onResult(Status status) {
                  // TODO(tvolkert): communicate status back to user
-                 finishWithSuccess(new JSONObject());
+                 finishWithSuccess(null);
                }
              });
    }
@@ -354,7 +328,7 @@ public class GoogleSignInPlugin
                @Override
                public void onResult(Status status) {
                  // TODO(tvolkert): communicate status back to user
-                 finishWithSuccess(new JSONObject());
+                 finishWithSuccess(null);
                }
              });
    }
@@ -414,25 +388,20 @@ public class GoogleSignInPlugin
      if (result.isSuccess()) {
        finishWithSuccess(getSignInResponse(result.getSignInAccount()));
      } else {
-       finishWithError(ERROR_REASON_STATUS, result.getStatus().toString());
+       finishWithSuccess(null);
+       // TODO(jackson): Communicate status. If they
+       // finishWithError(ERROR_REASON_STATUS, result.getStatus().toString());
      }
    }
 
-   private static JSONObject getSignInResponse(GoogleSignInAccount account) {
-     Uri photoUrl = account.getPhotoUrl();
-     try {
-       return new JSONObject()
-           .put(
-               "signInAccount",
-               new JSONObject()
-                   .put("displayName", account.getDisplayName())
-                   .put("email", account.getEmail())
-                   .put("id", account.getId())
-                   .put("photoUrl", photoUrl != null ? photoUrl.toString() : null));
-     } catch (JSONException e) {
-       Log.e(TAG, "Unexpected JSON exception", e);
-       return new JSONObject();
-     }
+  private static HashMap<String, String> getSignInResponse(GoogleSignInAccount account) {
+    HashMap result = new HashMap<String, String>();
+    result.put("displayName", account.getDisplayName());
+    result.put("email", account.getEmail());
+    result.put("id", account.getId());
+    Uri photoUrl = account.getPhotoUrl();
+    result.put("photoUrl", photoUrl != null ? photoUrl.toString() : null);
+    return result;
    }
 
    private void finishWithSuccess(Object result) {

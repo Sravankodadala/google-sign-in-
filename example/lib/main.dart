@@ -40,15 +40,15 @@ class SignInDemoState extends State<SignInDemo> {
   void initState() {
     super.initState();
     GoogleSignIn.instance.then((GoogleSignIn googleSignIn) {
-      googleSignIn.signInSilently().then(_handleGoogleSignInResult);
-    });
-  }
+      googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
+        setState(() {
+          _currentUser = account;
+        });
+        if (_currentUser != null) _handleGetContact();
 
-  Future<Null> _handleGoogleSignInResult(GoogleSignInResult result) async {
-    setState(() {
-      _currentUser = result.signInAccount;
+      });
+      googleSignIn.signInSilently();
     });
-    if (_currentUser != null) _handleGetContact();
   }
 
   Future<Null> _handleGetContact() async {
@@ -98,12 +98,12 @@ class SignInDemoState extends State<SignInDemo> {
 
   Future<Null> _handleSignIn() async {
     GoogleSignIn googleSignIn = await GoogleSignIn.instance;
-    googleSignIn.signIn().then(_handleGoogleSignInResult);
+    googleSignIn.signIn();
   }
 
   Future<Null> _handleSignOut() async {
     GoogleSignIn googleSignIn = await GoogleSignIn.instance;
-    googleSignIn.disconnect().then(_handleGoogleSignInResult);
+    googleSignIn.disconnect();
   }
 
   Widget _buildBody() {
