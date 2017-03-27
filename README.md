@@ -24,10 +24,6 @@ manager](https://console.developers.google.com/). For example, if you
 want to mimic the behavior of the Google Sign-In sample app, you'll need to
 enable the [Google People API](https://developers.google.com/people/).
 
-For now, your main activity should inherit from ```io.flutter.plugins.googlesignin.FlutterActivity```.
-This is temporary until
-the Flutter engine's FlutterActivity is updated to support this plugin.
-
 Add the following code to your main activity:
 
 ```
@@ -46,19 +42,12 @@ Add the following to your Activity's `onCreate` method:
 googleSignIn = GoogleSignInPlugin.register(this);
 ```
 
-Add the following import to your Dart code:
-
-```
-import 'package:google_sign_in/google_sign_in.dart';
-```
-
-You can now use the `GoogleSignIn` class to authenticate in your Dart code. See
-google_sign_in.dart for API details.
-
 # iOS integration
 
 To access Google Sign-In, you'll need to make sure to [register your
-application](https://developers.google.com/mobile/add?platform=ios).
+application](https://developers.google.com/mobile/add?platform=ios). Add
+the generated GoogleService-Info.plist to root of your Runner project in Xcode,
+so that the Google Sign-In framework can determine your client id.
 
 You'll need to add this to the main dictionary of your application's Info.plist:
 
@@ -113,6 +102,33 @@ Add the following code to your AppDelegate:
                                annotation:annotation];
 }
 ```
+
+## Usage
+
+Add the following import to your Dart code:
+
+```
+import 'package:google_sign_in/google_sign_in.dart';
+```
+
+Initialize GoogleSignIn with the scopes you want:
+
+```
+GoogleSignIn.initialize(
+    scopes: [
+      'email',
+      'https://www.googleapis.com/auth/contacts.readonly',
+    ],
+);
+```
+
+You can now use the `GoogleSignIn` class to authenticate in your Dart code, e.g.
+
+```
+GoogleSignInAccount account = await (await GoogleSignIn.instance).signIn();
+```
+
+See google_sign_in.dart for more API details.
 
 ## Issues and feedback
 

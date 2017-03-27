@@ -12,7 +12,6 @@ const String kIOSClientId =
 
 void main() {
   GoogleSignIn.initialize(
-      clientId: Platform.isIOS ? kIOSClientId : null,
       scopes: [
         'email',
         'https://www.googleapis.com/auth/contacts.readonly',
