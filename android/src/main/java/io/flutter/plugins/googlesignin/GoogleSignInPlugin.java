@@ -1,6 +1,43 @@
+// Copyright 2017, the Flutter project authors.  Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
+
 package io.flutter.plugins.googlesignin;
 
-import io.flutter.app.FlutterActivity;
+import android.accounts.Account;
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.OptionalPendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.common.api.Status;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import io.flutter.view.FlutterView;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import io.flutter.plugin.common.FlutterMethodChannel;
 import io.flutter.plugin.common.FlutterMethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.FlutterMethodChannel.Response;
@@ -12,16 +49,60 @@ import java.util.Map;
 /**
  * GoogleSignIn
  */
-public class GoogleSignInPlugin implements MethodCallHandler {
+public class GoogleSignInPlugin
+    implements MethodCallHandler,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
+
   private FlutterActivity activity;
   private final String CHANNEL = "plugins.flutter.io/google_sign_in";
 
-  public static void register(FlutterActivity activity) {
-    new GoogleSignInPlugin(activity);
+  private static final int REQUEST_CODE = 53293;
+
+  private static final String TAG = "flutter";
+
+  private static final String ERROR_REASON_EXCEPTION = "exception";
+  private static final String ERROR_REASON_STATUS = "status";
+  private static final String ERROR_REASON_CANCELED = "canceled";
+  private static final String ERROR_REASON_OPERATION_IN_PROGRESS = "operation_in_progress";
+  private static final String ERROR_REASON_CONNECTION_FAILED = "connection_failed";
+
+  private static final String METHOD_INIT = "init";
+  private static final String METHOD_SIGN_IN_SILENTLY = "signInSilently";
+  private static final String METHOD_SIGN_IN = "signIn";
+  private static final String METHOD_GET_TOKEN = "getToken";
+  private static final String METHOD_SIGN_OUT = "signOut";
+  private static final String METHOD_DISCONNECT = "disconnect";
+
+  private static final class PendingOperation {
+    final String method;
+    final Queue<Response> responseQueue = Lists.newLinkedList();
+
+    PendingOperation(String method, Response response) {
+      this.method = Preconditions.checkNotNull(method);
+      responseQueue.add(Preconditions.checkNotNull(response));
+    }
   }
 
-  private GoogleSignInPlugin(FlutterActivity activity) {
+  private final BackgroundTaskRunner backgroundTaskRunner;
+  private final int requestCode;
+
+  private GoogleApiClient googleApiClient;
+  private List<String> requestedScopes;
+  private PendingOperation pendingOperation;
+
+  public static void register(FlutterActivity activity) {
+    new GoogleSignInPlugin(activity, new BackgroundTaskRunner(1), REQUEST_CODE);
+  }
+
+  @VisibleForTesting
+  private GoogleSignInPlugin(
+      FlutterActivity activity,
+      BackgroundTaskRunner backgroundTaskRunner,
+      int requestCode) {
     this.activity = activity;
+    this.backgroundTaskRunner = backgroundTaskRunner;
+    this.requestCode = requestCode;
     new FlutterMethodChannel(activity.getFlutterView(), CHANNEL)
       .setMethodCallHandler(this);
   }
@@ -59,6 +140,22 @@ public class GoogleSignInPlugin implements MethodCallHandler {
     }
   }
 
+  /** Extracts the list of scopes from the specified arguments. */
+  private static List<String> getScopesArgument(JSONObject arguments) {
+    List<String> result = Lists.newArrayList();
+    try {
+      if (!arguments.isNull("scopes")) {
+        JSONArray scopes = arguments.getJSONArray("scopes");
+        for (int i = 0; i < scopes.length(); i++) {
+          result.add(scopes.getString(i));
+        }
+      }
+    } catch (JSONException e) {
+      Log.e(TAG, "JSON exception", e);
+    }
+    return result;
+  }
+
   /**
     * Extracts the argument with the specified ket from the specified arguments object, expecting it
     * to be a String.
@@ -78,7 +175,7 @@ public class GoogleSignInPlugin implements MethodCallHandler {
     * Initializes this listener so that it is ready to perform other operations. The Dart code
     * guarantees that this will be called and completed before any other methods are invoked.
     */
-   private void init(MessageResponse response, List<String> requestedScopes, String hostedDomain) {
+   private void init(Response response, List<String> requestedScopes, String hostedDomain) {
      try {
        if (googleApiClient != null) {
          // This can happen if the scopes change, or a full restart hot reload
@@ -104,7 +201,7 @@ public class GoogleSignInPlugin implements MethodCallHandler {
                .build();
      } catch (Exception e) {
        Log.e(TAG, "Initialization error", e);
-       response.send(getFailureResponse(ERROR_REASON_EXCEPTION, e.getMessage()));
+       response.error(ERROR_REASON_EXCEPTION, e.getMessage(), null);
      }
 
      // We're not initialized until we receive `onConnected`.
@@ -129,7 +226,7 @@ public class GoogleSignInPlugin implements MethodCallHandler {
     * @return true iff an operation is already in progress (and thus the response is already being
     *     handled).
     */
-   private boolean checkAndSetPendingOperation(String currentMethod, MessageResponse response) {
+   private boolean checkAndSetPendingOperation(String currentMethod, Response response) {
      if (pendingOperation == null) {
        pendingOperation = new PendingOperation(currentMethod, response);
        return false;
@@ -140,8 +237,7 @@ public class GoogleSignInPlugin implements MethodCallHandler {
        pendingOperation.responseQueue.add(response);
      } else {
        // Only one type of operation can be in progress at a time
-       response.send(
-           getFailureResponse(ERROR_REASON_OPERATION_IN_PROGRESS, pendingOperation.method));
+       response.error(ERROR_REASON_OPERATION_IN_PROGRESS, pendingOperation.method, null);
      }
 
      return true;
@@ -151,7 +247,7 @@ public class GoogleSignInPlugin implements MethodCallHandler {
     * Returns the account information for the user who is signed in to this app. If no user is signed
     * in, tries to sign the user in without displaying any user interface.
     */
-   private void signInSilently(MessageResponse response) {
+   private void signInSilently(Response response) {
      if (checkAndSetPendingOperation(METHOD_SIGN_IN, response)) {
        return;
      }
@@ -175,7 +271,7 @@ public class GoogleSignInPlugin implements MethodCallHandler {
     * Signs the user in via the sign-in user interface, including the OAuth consent flow if scopes
     * were requested.
     */
-   private void signIn(MessageResponse response) {
+   private void signIn(Response response) {
      if (checkAndSetPendingOperation(METHOD_SIGN_IN, response)) {
        return;
      }
@@ -186,12 +282,12 @@ public class GoogleSignInPlugin implements MethodCallHandler {
 
    /**
     * Gets an OAuth access token with the scopes that were specified during {@link
-    * #init(MessageResponse,List<String>) initialization} for the user with the specified email
+    * #init(response,List<String>) initialization} for the user with the specified email
     * address.
     */
-   private void getToken(MessageResponse response, final String email) {
+   private void getToken(Response response, final String email) {
      if (email == null) {
-       response.send(getFailureResponse(ERROR_REASON_EXCEPTION, "Email is null"));
+       response.error(ERROR_REASON_EXCEPTION, "Email is null", null);
        return;
      }
 
@@ -211,17 +307,16 @@ public class GoogleSignInPlugin implements MethodCallHandler {
 
      backgroundTaskRunner.runInBackground(
          getTokenTask,
-         new Callback<String>() {
+         new BackgroundTaskRunner.Callback<String>() {
            @Override
            public void run(Future<String> tokenFuture) {
              try {
-               finishOperation(getTokenResponse(tokenFuture.get()));
+               finishWithSuccess(tokenFuture.get());
              } catch (ExecutionException e) {
                Log.e(TAG, "Exception getting access token", e);
-               finishOperation(
-                   getFailureResponse(ERROR_REASON_EXCEPTION, e.getCause().getMessage()));
+               finishWithError(ERROR_REASON_EXCEPTION, e.getCause().getMessage());
              } catch (InterruptedException e) {
-               finishOperation(getFailureResponse(ERROR_REASON_EXCEPTION, e.getMessage()));
+               finishWithError(ERROR_REASON_EXCEPTION, e.getMessage());
              }
            }
          });
@@ -231,7 +326,7 @@ public class GoogleSignInPlugin implements MethodCallHandler {
     * Signs the user out. Their credentials may remain valid, meaning they'll be able to silently
     * sign back in.
     */
-   private void signOut(MessageResponse response) {
+   private void signOut(Response response) {
      if (checkAndSetPendingOperation(METHOD_SIGN_OUT, response)) {
        return;
      }
@@ -242,13 +337,13 @@ public class GoogleSignInPlugin implements MethodCallHandler {
                @Override
                public void onResult(Status status) {
                  // TODO(tvolkert): communicate status back to user
-                 finishOperation(EMPTY_SUCCESS_JSON);
+                 finishWithSuccess(new JSONObject());
                }
              });
    }
 
    /** Signs the user out, and revokes their credentials. */
-   private void disconnect(MessageResponse response) {
+   private void disconnect(Response response) {
      if (checkAndSetPendingOperation(METHOD_DISCONNECT, response)) {
        return;
      }
@@ -259,7 +354,7 @@ public class GoogleSignInPlugin implements MethodCallHandler {
                @Override
                public void onResult(Status status) {
                  // TODO(tvolkert): communicate status back to user
-                 finishOperation(EMPTY_SUCCESS_JSON);
+                 finishWithSuccess(new JSONObject());
                }
              });
    }
@@ -272,7 +367,7 @@ public class GoogleSignInPlugin implements MethodCallHandler {
    public void onConnected(Bundle connectionHint) {
      // We can get reconnected if, e.g. the activity is paused and resumed.
      if (pendingOperation != null && pendingOperation.method.equals(METHOD_INIT)) {
-       finishOperation(EMPTY_SUCCESS_JSON);
+       finishWithSuccess(null);
      }
    }
 
@@ -286,7 +381,7 @@ public class GoogleSignInPlugin implements MethodCallHandler {
    public void onConnectionFailed(@NonNull ConnectionResult result) {
      // We can attempt to reconnect if, e.g. the activity is paused and resumed.
      if (pendingOperation != null && pendingOperation.method.equals(METHOD_INIT)) {
-       finishOperation(getFailureResponse(ERROR_REASON_CONNECTION_FAILED, result.toString()));
+       finishWithError(ERROR_REASON_CONNECTION_FAILED, result.toString());
      }
    }
 
@@ -308,7 +403,7 @@ public class GoogleSignInPlugin implements MethodCallHandler {
      }
 
      if (resultCode != Activity.RESULT_OK) {
-       finishOperation(getFailureResponse(ERROR_REASON_CANCELED, String.valueOf(resultCode)));
+       finishWithError(ERROR_REASON_CANCELED, String.valueOf(resultCode));
        return;
      }
 
@@ -317,56 +412,39 @@ public class GoogleSignInPlugin implements MethodCallHandler {
 
    private void onSignInResult(GoogleSignInResult result) {
      if (result.isSuccess()) {
-       finishOperation(getSignInResponse(result.getSignInAccount()));
+       finishWithSuccess(getSignInResponse(result.getSignInAccount()));
      } else {
-       finishOperation(getFailureResponse(ERROR_REASON_STATUS, result.getStatus().toString()));
+       finishWithError(ERROR_REASON_STATUS, result.getStatus().toString());
      }
    }
 
-   private static String getSignInResponse(GoogleSignInAccount account) {
+   private static JSONObject getSignInResponse(GoogleSignInAccount account) {
      Uri photoUrl = account.getPhotoUrl();
      try {
        return new JSONObject()
-           .put("success", true)
            .put(
                "signInAccount",
                new JSONObject()
                    .put("displayName", account.getDisplayName())
                    .put("email", account.getEmail())
                    .put("id", account.getId())
-                   .put("photoUrl", photoUrl != null ? photoUrl.toString() : null))
-           .toString();
+                   .put("photoUrl", photoUrl != null ? photoUrl.toString() : null));
      } catch (JSONException e) {
-       return getFailureResponse(ERROR_REASON_EXCEPTION, e.getMessage());
+       Log.e(TAG, "Unexpected JSON exception", e);
+       return new JSONObject();
      }
    }
 
-   private static String getTokenResponse(String token) {
-     try {
-       return new JSONObject().put("success", true).put("token", token).toString();
-     } catch (JSONException e) {
-       return getFailureResponse(ERROR_REASON_EXCEPTION, e.getMessage());
+   private void finishWithSuccess(Object result) {
+     for (Response response : pendingOperation.responseQueue) {
+       response.success(result);
      }
+     pendingOperation = null;
    }
 
-   private static String getFailureResponse(String reason, String detail) {
-     try {
-       return new JSONObject()
-           .put("success", false)
-           .put("reason", reason)
-           .put("detail", detail)
-           .toString();
-     } catch (JSONException e) {
-       Log.e(TAG, "JSON exception", e);
-       return String.format(
-           "{\"success\":false,\"reason\":\"%s\",\"detail\":\"%s\"}",
-           ERROR_REASON_EXCEPTION, JSONObject.quote(e.getMessage()));
-     }
-   }
-
-   private void finishOperation(String message) {
-     for (MessageResponse response : pendingOperation.responseQueue) {
-       response.send(message);
+   private void finishWithError(String errorCode, String errorMessage) {
+     for (Response response : pendingOperation.responseQueue) {
+       response.error(errorCode, errorMessage, null);
      }
      pendingOperation = null;
    }
