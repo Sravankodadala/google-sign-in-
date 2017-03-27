@@ -7,18 +7,6 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/services.dart' show PlatformMethodChannel;
 
-class GoogleSignInError extends Error {
-  final String reason;
-  final String detail;
-
-  GoogleSignInError._(Map<String, dynamic> response)
-      : reason = response['reason'],
-        detail = response['detail'];
-
-  @override
-  String toString() => detail == null ? reason : '$detail [$reason]';
-}
-
 class GoogleSignInAccount {
   final String displayName;
   final String email;
@@ -131,7 +119,6 @@ class GoogleSignIn {
   static Future<GoogleSignIn> get instance {
     if (_instance == null) {
       assert(_clientId != null || !Platform.isIOS);
-      GoogleSignIn googleSignIn = new GoogleSignIn._();
       _instance = _channel.invokeMethod(
         "init",
         <String, dynamic>{
@@ -139,12 +126,7 @@ class GoogleSignIn {
           'scopes': _scopes,
           'hostedDomain': _hostedDomain,
         },
-      ).then((Map<String, dynamic> response) {
-        if (!response['success']) {
-          throw new GoogleSignInError._(response);
-        }
-        return googleSignIn;
-      });
+      ).then((_) => new GoogleSignIn._());
     }
     return _instance;
   }
