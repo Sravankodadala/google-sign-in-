@@ -10,7 +10,7 @@
 
 @implementation NSError(FlutterError)
 - (FlutterError *)flutterError {
-  return [FlutterError errorWithCode:[NSNumber numberWithInt:self.code]
+  return [FlutterError errorWithCode:[NSString stringWithFormat:@"Error %d", self.code]
                              message:self.domain
                              details:self.localizedDescription];
 }
@@ -83,7 +83,12 @@ didSignInForUser:(GIDGoogleUser*)user
      withError:(NSError*)error {
   NSDictionary* response;
   if (error != nil) {
-    [self respondWithAccount:nil error:error];
+    if (error.code == -4) {
+      // Occurs when silent sign-in is not possible, return an empty user in this case
+      [self respondWithAccount:@{} error:nil];
+    } else {
+      [self respondWithAccount:nil error:error.flutterError];
+    }
   } else {
     NSURL* photoUrl;
     if (user.profile.hasImage) {
