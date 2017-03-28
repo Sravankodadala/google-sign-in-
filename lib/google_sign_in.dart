@@ -18,8 +18,8 @@ class GoogleSignInAccount {
         email = message['email'],
         id = message['id'],
         photoUrl = message['photoUrl'] {
-    assert(displayName != nil);
-    assert(id != nil);
+    assert(displayName != null);
+    assert(id != null);
   }
 
   Future<String> get accessToken async {
