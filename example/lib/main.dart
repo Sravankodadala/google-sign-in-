@@ -7,9 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-const String kIOSClientId =
-    "680888876100-5bji9nol0un22ucd19olo3ni597jgm60.apps.googleusercontent.com";
-
 void main() {
   GoogleSignIn.initialize(
       scopes: [
