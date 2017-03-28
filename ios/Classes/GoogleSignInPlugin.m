@@ -60,7 +60,7 @@
         }];
     } else if ([call.method isEqualToString:@"signOut"]) {
         [[GIDSignIn sharedInstance] signOut];
-        [self respondWithAccount:@{} error:nil];
+        [self respondWithAccount:nil error:nil];
     } else if ([call.method isEqualToString:@"disconnect"]) {
         [_accountRequests insertObject:result atIndex:0];
         [[GIDSignIn sharedInstance] disconnect];
@@ -86,7 +86,7 @@ didSignInForUser:(GIDGoogleUser*)user
   if (error != nil) {
     if (error.code == -4) {
       // Occurs when silent sign-in is not possible, return an empty user in this case
-      [self respondWithAccount:@{} error:nil];
+      [self respondWithAccount:nil error:nil];
     } else {
       [self respondWithAccount:nil error:error.flutterError];
     }
@@ -99,12 +99,10 @@ didSignInForUser:(GIDGoogleUser*)user
       photoUrl = [user.profile imageURLWithDimension:256];
     }
     [self respondWithAccount:@{
-                               @"signInAccount": @{
-                                 @"displayName" : user.profile.name ?: [NSNull null],
-                                 @"email" : user.profile.email ?: [NSNull null],
-                                 @"id" : user.userID ?: [NSNull null],
-                                 @"photoUrl" : [photoUrl absoluteString] ?: [NSNull null],
-                               }
+                               @"displayName" : user.profile.name ?: [NSNull null],
+                               @"email" : user.profile.email ?: [NSNull null],
+                               @"id" : user.userID ?: [NSNull null],
+                               @"photoUrl" : [photoUrl absoluteString] ?: [NSNull null],
                              }
                       error:nil];
   }

@@ -17,7 +17,10 @@ class GoogleSignInAccount {
       : displayName = message['displayName'],
         email = message['email'],
         id = message['id'],
-        photoUrl = message['photoUrl'];
+        photoUrl = message['photoUrl'] {
+    assert(displayName != nil);
+    assert(id != nil);
+  }
 
   Future<String> get accessToken async {
     GoogleSignIn googleSignIn = await GoogleSignIn.instance;
