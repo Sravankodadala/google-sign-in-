@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert' show JSON;
-import 'dart:io' show Platform;
 
 import "package:http/http.dart" as http;
 import 'package:flutter/material.dart';
@@ -94,7 +93,11 @@ class SignInDemoState extends State<SignInDemo> {
 
   Future<Null> _handleSignIn() async {
     GoogleSignIn googleSignIn = await GoogleSignIn.instance;
-    googleSignIn.signIn();
+    try {
+      final account = await googleSignIn.signIn();
+    } catch (error) {
+      print(error);
+    }
   }
 
   Future<Null> _handleSignOut() async {
