@@ -8,7 +8,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     FlutterViewController* flutterController = (FlutterViewController*)self.window.rootViewController;
-    _googleSignInPlugin = [[GoogleSignInPlugin alloc] initWithFlutterView:flutterController];
+    _googleSignInPlugin = [[GoogleSignInPlugin alloc] initWithController:flutterController];
     return YES;
 }
 

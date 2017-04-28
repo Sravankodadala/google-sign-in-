@@ -20,19 +20,19 @@
   NSMutableArray<FlutterResultReceiver>* _accountRequests;
 }
 
-- (instancetype)initWithFlutterView:(FlutterViewController *)flutterView {
+- (instancetype)initWithController:(FlutterViewController *)controller {
   self = [super init];
   if (self) {
     FlutterMethodChannel *channel = [FlutterMethodChannel
         methodChannelWithName:@"plugins.flutter.io/google_sign_in"
-              binaryMessenger:flutterView];
+              binaryMessenger:controller];
     _accountRequests = [[NSMutableArray alloc] init];
     [GIDSignIn sharedInstance].delegate = self;
-    [GIDSignIn sharedInstance].uiDelegate = flutterView;
     [channel setMethodCallHandler:^(FlutterMethodCall *call,
                                     FlutterResultReceiver result) {
       [self handleMethodCall:call result:result];
     }];
+    [GIDSignIn sharedInstance].uiDelegate = controller;
   }
   return self;
 }
