@@ -3,9 +3,8 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:io' show Platform;
 
-import 'package:flutter/services.dart' show PlatformMethodChannel;
+import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter/material.dart';
 
 class GoogleSignInAccount {
@@ -58,8 +57,8 @@ class GoogleSignInAccount {
 
 /// GoogleSignIn allows you to authenticate Google users.
 class GoogleSignIn {
-  static const PlatformMethodChannel _channel =
-      const PlatformMethodChannel('plugins.flutter.io/google_sign_in');
+  static const MethodChannel _channel =
+      const MethodChannel('plugins.flutter.io/google_sign_in');
   static List<String> _scopes;
   static String _hostedDomain;
 
