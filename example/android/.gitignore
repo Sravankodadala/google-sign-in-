@@ -6,9 +6,8 @@
 .DS_Store
 /build
 /captures
+PluginRegistry.java
 
 /gradle
 /gradlew
 /gradlew.bat
-
-app/src/main/java/io/flutter/plugins/PluginRegistry.java
