@@ -17,60 +17,63 @@
 @end
 
 @implementation GoogleSignInPlugin {
-  NSMutableArray<FlutterResultReceiver>* _accountRequests;
+  NSMutableArray<FlutterResult>* _accountRequests;
 }
 
 - (instancetype)initWithController:(FlutterViewController *)controller {
   self = [super init];
   if (self) {
     FlutterMethodChannel *channel = [FlutterMethodChannel
-        methodChannelWithName:@"plugins.flutter.io/google_sign_in"
-              binaryMessenger:controller];
+                                     methodChannelWithName:@"plugins.flutter.io/google_sign_in"
+                                     binaryMessenger:controller];
     _accountRequests = [[NSMutableArray alloc] init];
     [GIDSignIn sharedInstance].delegate = self;
+    [GIDSignIn sharedInstance].uiDelegate = (id)controller;
     [channel setMethodCallHandler:^(FlutterMethodCall *call,
-                                    FlutterResultReceiver result) {
+                                    FlutterResult result) {
       [self handleMethodCall:call result:result];
     }];
-    [GIDSignIn sharedInstance].uiDelegate = controller;
   }
   return self;
 }
 
-- (void)handleMethodCall:(FlutterMethodCall *)call result:(FlutterResultReceiver)result {
-    if ([call.method isEqualToString:@"init"]) {
-        NSError *error;
-        [[GGLContext sharedInstance] configureWithError:&error];
-        [GIDSignIn sharedInstance].scopes = call.arguments[@"scopes"];
-        [GIDSignIn sharedInstance].hostedDomain = call.arguments[@"hostedDomain"];
-        result(error.flutterError);
-    } else if ([call.method isEqualToString:@"signInSilently"]) {
-        [_accountRequests insertObject:result atIndex:0];
-        [[GIDSignIn sharedInstance] signInSilently];
-    } else if ([call.method isEqualToString:@"signIn"]) {
-        [_accountRequests insertObject:result atIndex:0];
-        [[GIDSignIn sharedInstance] signIn];
-    } else if ([call.method isEqualToString:@"getToken"]) {
-        GIDGoogleUser *currentUser = [GIDSignIn sharedInstance].currentUser;
-        GIDAuthentication *auth = currentUser.authentication;
-        [auth getTokensWithHandler:^void(GIDAuthentication* authentication,
-                                         NSError* error) {
-          result(error != nil ? error.flutterError : authentication.accessToken);
-        }];
-    } else if ([call.method isEqualToString:@"signOut"]) {
-        [[GIDSignIn sharedInstance] signOut];
-        result(nil);
-    } else if ([call.method isEqualToString:@"disconnect"]) {
-        [_accountRequests insertObject:result atIndex:0];
-        [[GIDSignIn sharedInstance] disconnect];
-    } else {
-        result(FlutterMethodNotImplemented);
-    }
+- (void)handleMethodCall:(FlutterMethodCall *)call result:(FlutterResult)result {
+  if ([call.method isEqualToString:@"init"]) {
+    NSError *error;
+    [[GGLContext sharedInstance] configureWithError:&error];
+    [GIDSignIn sharedInstance].scopes = call.arguments[@"scopes"];
+    [GIDSignIn sharedInstance].hostedDomain = call.arguments[@"hostedDomain"];
+    result(error.flutterError);
+  } else if ([call.method isEqualToString:@"signInSilently"]) {
+    [_accountRequests insertObject:result atIndex:0];
+    [[GIDSignIn sharedInstance] signInSilently];
+  } else if ([call.method isEqualToString:@"signIn"]) {
+    [_accountRequests insertObject:result atIndex:0];
+    [[GIDSignIn sharedInstance] signIn];
+  } else if ([call.method isEqualToString:@"getTokens"]) {
+    GIDGoogleUser *currentUser = [GIDSignIn sharedInstance].currentUser;
+    GIDAuthentication *auth = currentUser.authentication;
+    [auth getTokensWithHandler:^void(GIDAuthentication* authentication,
+                                     NSError* error) {
+      result(error != nil ? error.flutterError : @{
+                                                   @"idToken": authentication.idToken,
+                                                   @"accessToken": authentication.accessToken,
+                                                   });
+    }];
+  } else if ([call.method isEqualToString:@"signOut"]) {
+    [[GIDSignIn sharedInstance] signOut];
+    result(nil);
+  } else if ([call.method isEqualToString:@"disconnect"]) {
+    [_accountRequests insertObject:result atIndex:0];
+    [[GIDSignIn sharedInstance] disconnect];
+  } else {
+    result(FlutterMethodNotImplemented);
+  }
 }
 
 - (BOOL)handleURL:(NSURL *)url
-    sourceApplication:(NSString *)sourceApplication
-           annotation:(id)annotation {
+sourceApplication:(NSString *)sourceApplication
+       annotation:(id)annotation {
   return [[GIDSignIn sharedInstance] handleURL:url
                              sourceApplication:sourceApplication
                                     annotation:annotation];
@@ -79,13 +82,12 @@
 - (void)signIn:(GIDSignIn*)signIn
 didSignInForUser:(GIDGoogleUser*)user
      withError:(NSError*)error {
-  NSDictionary* response;
   if (error != nil) {
     if (error.code == -4) {
       // Occurs when silent sign-in is not possible, return an empty user in this case
       [self respondWithAccount:nil error:nil];
     } else {
-      [self respondWithAccount:nil error:error.flutterError];
+      [self respondWithAccount:nil error:error];
     }
   } else {
     NSURL* photoUrl;
@@ -98,23 +100,23 @@ didSignInForUser:(GIDGoogleUser*)user
                                @"email" : user.profile.email ?: [NSNull null],
                                @"id" : user.userID ?: [NSNull null],
                                @"photoUrl" : [photoUrl absoluteString] ?: [NSNull null],
-                             }
-                      error:nil];
+                               }
+                       error:nil];
   }
 }
 
 - (void)signIn:(GIDSignIn *)signIn
-    didDisconnectWithUser:(GIDGoogleUser *)user
-                withError:(NSError *)error {
+didDisconnectWithUser:(GIDGoogleUser *)user
+     withError:(NSError *)error {
   [self respondWithAccount:@{} error:nil];
 }
 
 - (void)respondWithAccount:(id)account
-                    error:(NSError *)error
+                     error:(NSError *)error
 {
-  NSArray<FlutterResultReceiver> *requests = _accountRequests;
+  NSArray<FlutterResult> *requests = _accountRequests;
   _accountRequests = [[NSMutableArray alloc] init];
-  for (FlutterResultReceiver accountRequest in requests) {
+  for (FlutterResult accountRequest in requests) {
     accountRequest(error != nil ? error.flutterError : account);
   }
 }

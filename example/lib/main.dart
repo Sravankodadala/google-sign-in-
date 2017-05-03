@@ -6,14 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-void main() {
-  GoogleSignIn.initialize(
-      scopes: [
-        'email',
-        'https://www.googleapis.com/auth/contacts.readonly',
-      ],
-  );
+GoogleSignIn _googleSignIn = new GoogleSignIn(
+  scopes: [
+    'email',
+    'https://www.googleapis.com/auth/contacts.readonly',
+  ],
+);
 
+void main() {
   runApp(
       new MaterialApp(
           title: 'Google Sign In',
@@ -34,16 +34,15 @@ class SignInDemoState extends State<SignInDemo> {
   @override
   void initState() {
     super.initState();
-    GoogleSignIn.instance.then((GoogleSignIn googleSignIn) {
-      googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
-        setState(() {
-          _currentUser = account;
-        });
-        if (_currentUser != null) _handleGetContact();
-
+    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
+      setState(() {
+        _currentUser = account;
       });
-      googleSignIn.signInSilently();
+      if (_currentUser != null) {
+        _handleGetContact();
+      }
     });
+    _googleSignIn.signInSilently();
   }
 
   Future<Null> _handleGetContact() async {
@@ -92,17 +91,15 @@ class SignInDemoState extends State<SignInDemo> {
   }
 
   Future<Null> _handleSignIn() async {
-    GoogleSignIn googleSignIn = await GoogleSignIn.instance;
     try {
-      final account = await googleSignIn.signIn();
+      await _googleSignIn.signIn();
     } catch (error) {
       print(error);
     }
   }
 
   Future<Null> _handleSignOut() async {
-    GoogleSignIn googleSignIn = await GoogleSignIn.instance;
-    googleSignIn.disconnect();
+    _googleSignIn.disconnect();
   }
 
   Widget _buildBody() {
