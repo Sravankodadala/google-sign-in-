@@ -108,13 +108,7 @@ class SignInDemoState extends State<SignInDemo> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             new ListTile(
-                leading: new CircleAvatar(
-                    child: new ClipOval(
-                        child: new Image(
-                            image: new NetworkImage(_currentUser.photoUrl),
-                        ),
-                    ),
-                ),
+                leading: new GoogleUserCircleAvatar(_currentUser.photoUrl),
                 title: new Text(_currentUser.displayName),
                 subtitle: new Text(_currentUser.email),
             ),

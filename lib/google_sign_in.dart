@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 
 class GoogleSignInAuthentication {
   final Map<String, String> _data;
@@ -26,13 +27,15 @@ class GoogleSignInAccount {
   final String email;
   final String id;
   final String photoUrl;
+  final String _idToken;
   final GoogleSignIn _googleSignIn;
 
   GoogleSignInAccount._(this._googleSignIn, Map<String, dynamic> data)
       : displayName = data['displayName'],
         email = data['email'],
         id = data['id'],
-        photoUrl = data['photoUrl'] {
+        photoUrl = data['photoUrl'],
+        _idToken = data['idToken'] {
     assert(displayName != null);
     assert(id != null);
   }
@@ -47,14 +50,15 @@ class GoogleSignInAccount {
       'getTokens',
       <String, dynamic>{'email': email},
     );
+    // On Android, there isn't an API for refreshing the idToken, so re-use
+    // the one we obtained on login.
+    if (response['idToken'] == null)
+      response['idToken'] = _idToken;
     return new GoogleSignInAuthentication._(response);
   }
 
-  Future<String> get idToken async => (await authentication).idToken;
-  Future<String> get accessToken async => (await authentication).accessToken;
-
   Future<Map<String, String>> get authHeaders async {
-    String token = await accessToken;
+    String token = (await authentication).accessToken;
     return <String, String>{
       "Authorization": "Bearer $token",
       "X-Goog-AuthUser": "0",
@@ -93,7 +97,7 @@ class GoogleSignIn {
   /// setting this, sign in will be restricted to accounts of the user in the
   /// specified domain. By default, the list of accounts will not be restricted.
   GoogleSignIn({ this.scopes, this.hostedDomain })
-    : _channel = const MethodChannel('plugins.flutter.io/google_sign_in'),
+    : _channel = const MethodChannel('plugins.flutter.io/google_sign_in');
 
   @visibleForTesting
   GoogleSignIn.private({ this.scopes, this.hostedDomain, MethodChannel channel })

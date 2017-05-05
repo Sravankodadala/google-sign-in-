@@ -66,7 +66,7 @@ public class GoogleSignInPlugin
   private static final String METHOD_INIT = "init";
   private static final String METHOD_SIGN_IN_SILENTLY = "signInSilently";
   private static final String METHOD_SIGN_IN = "signIn";
-  private static final String METHOD_GET_TOKEN = "getToken";
+  private static final String METHOD_GET_TOKENS = "getTokens";
   private static final String METHOD_SIGN_OUT = "signOut";
   private static final String METHOD_DISCONNECT = "disconnect";
 
@@ -128,8 +128,8 @@ public class GoogleSignInPlugin
         signIn(result);
         break;
 
-      case METHOD_GET_TOKEN:
-        getToken(result, (String) arguments.get("email"));
+      case METHOD_GET_TOKENS:
+        getTokens(result, (String) arguments.get("email"));
         break;
 
       case METHOD_SIGN_OUT:
@@ -156,8 +156,17 @@ public class GoogleSignInPlugin
         googleApiClient = null;
       }
       GoogleSignInOptions.Builder optionsBuilder =
-          new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN);
-      optionsBuilder.requestEmail();
+          new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+              .requestEmail();
+      // Only requests a clientId if google-services.json was present and parsed
+      // by the google-services Gradle script.
+      // TODO(jackson): Perhaps we should provide a mechanism to override this
+      // behavior.
+      int clientIdIdentifier = activity.getResources().getIdentifier(
+            "default_web_client_id", "string", activity.getPackageName());
+      if (clientIdIdentifier != 0) {
+        optionsBuilder.requestIdToken(activity.getString(clientIdIdentifier));
+      }
       for (String scope : requestedScopes) {
         optionsBuilder.requestScopes(new Scope(scope));
       }
@@ -259,13 +268,13 @@ public class GoogleSignInPlugin
    * #init(Result, List, String) initialization} for the user with the specified email
    * address.
    */
-  private void getToken(Result result, final String email) {
+  private void getTokens(Result result, final String email) {
     if (email == null) {
       result.error(ERROR_REASON_EXCEPTION, "Email is null", null);
       return;
     }
 
-    if (checkAndSetPendingOperation(METHOD_GET_TOKEN, result)) {
+    if (checkAndSetPendingOperation(METHOD_GET_TOKENS, result)) {
       return;
     }
 
@@ -285,7 +294,14 @@ public class GoogleSignInPlugin
           @Override
           public void run(Future<String> tokenFuture) {
             try {
-              finishWithSuccess(tokenFuture.get());
+              String token = tokenFuture.get();
+              HashMap<String, String> result = new HashMap<>();
+              result.put("accessToken", token);
+              // TODO(jackson): If we had a way to get the current user at this
+              // point, we could use that to obtain an up-to-date idToken here
+              // instead of the value we cached during sign in. At least, that's
+              // how it works on iOS.
+              finishWithSuccess(result);
             } catch (ExecutionException e) {
               Log.e(TAG, "Exception getting access token", e);
               finishWithError(ERROR_REASON_EXCEPTION, e.getCause().getMessage());
@@ -401,6 +417,7 @@ public class GoogleSignInPlugin
     result.put("displayName", account.getDisplayName());
     result.put("email", account.getEmail());
     result.put("id", account.getId());
+    result.put("idToken", account.getIdToken());
     Uri photoUrl = account.getPhotoUrl();
     result.put("photoUrl", photoUrl != null ? photoUrl.toString() : null);
     return result;
