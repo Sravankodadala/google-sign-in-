@@ -6,37 +6,59 @@ import 'dart:async';
 
 import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
+
+class GoogleSignInAuthentication {
+  final Map<String, String> _data;
+  GoogleSignInAuthentication._(this._data);
+
+  /// An OpenID Connect ID token that identifies the user.
+  String get idToken => _data['idToken'];
+
+  /// The OAuth2 access token to access Google services.
+  String get accessToken => _data['accessToken'];
+
+  @override
+  String toString() => 'GoogleSignInAuthentication:$_data';
+}
 
 class GoogleSignInAccount {
   final String displayName;
   final String email;
   final String id;
   final String photoUrl;
+  final String _idToken;
+  final GoogleSignIn _googleSignIn;
 
-  GoogleSignInAccount._(Map<String, dynamic> message)
-      : displayName = message['displayName'],
-        email = message['email'],
-        id = message['id'],
-        photoUrl = message['photoUrl'] {
+  GoogleSignInAccount._(this._googleSignIn, Map<String, dynamic> data)
+      : displayName = data['displayName'],
+        email = data['email'],
+        id = data['id'],
+        photoUrl = data['photoUrl'],
+        _idToken = data['idToken'] {
     assert(displayName != null);
     assert(id != null);
   }
 
-  Future<String> get accessToken async {
-    GoogleSignIn googleSignIn = await GoogleSignIn.instance;
-    if (googleSignIn.currentUser != this) {
+
+  Future<GoogleSignInAuthentication> get authentication async {
+    if (_googleSignIn.currentUser != this) {
       throw new StateError('User is no longer signed in.');
     }
 
-    String response = await GoogleSignIn._channel.invokeMethod(
-      'getToken',
+    Map<String, String> response = await _googleSignIn._channel.invokeMethod(
+      'getTokens',
       <String, dynamic>{'email': email},
     );
-    return response;
+    // On Android, there isn't an API for refreshing the idToken, so re-use
+    // the one we obtained on login.
+    if (response['idToken'] == null)
+      response['idToken'] = _idToken;
+    return new GoogleSignInAuthentication._(response);
   }
 
   Future<Map<String, String>> get authHeaders async {
-    String token = await accessToken;
+    String token = (await authentication).accessToken;
     return <String, String>{
       "Authorization": "Bearer $token",
       "X-Goog-AuthUser": "0",
@@ -57,10 +79,13 @@ class GoogleSignInAccount {
 
 /// GoogleSignIn allows you to authenticate Google users.
 class GoogleSignIn {
-  static const MethodChannel _channel =
-      const MethodChannel('plugins.flutter.io/google_sign_in');
-  static List<String> _scopes;
-  static String _hostedDomain;
+  final MethodChannel _channel;
+
+  /// The list of [scopes] are OAuth scope codes requested when signing in.
+  final List<String> scopes;
+
+  /// Domain to restrict sign-in to.
+  final String hostedDomain;
 
   /// Initializes global sign-in configuration settings.
   ///
@@ -71,54 +96,36 @@ class GoogleSignIn {
   /// The [hostedDomain] argument specifies a hosted domain restriction. By
   /// setting this, sign in will be restricted to accounts of the user in the
   /// specified domain. By default, the list of accounts will not be restricted.
-  static void initialize({
-    List<String> scopes,
-    String hostedDomain,
-  }) {
-    assert(_instance == null);
-    _scopes = scopes;
-    _hostedDomain = hostedDomain;
-  }
+  GoogleSignIn({ this.scopes, this.hostedDomain })
+    : _channel = const MethodChannel('plugins.flutter.io/google_sign_in');
 
-  static Future<GoogleSignIn> _instance;
-
-  /// The singleton instance of [GoogleSignIn]. Configuration properties should
-  /// be [initialized](initialize) before retrieving this instance for the first
-  /// time, as they become immutable thereafter.
-  ///
-  /// Note that this returns a [Future] because a properly instantiated
-  /// sign-in client may require the user to upgrade other software on their
-  /// device (e.g. Google Play Services for Android). Only once the user's
-  /// device is in a state that allows us to sign in will this future complete.
-  /// If action is required of the user, and the user refuses to take that
-  /// action, this future will complete with an error, and the app will be
-  /// unable to sign the user in.
-  static Future<GoogleSignIn> get instance {
-    if (_instance == null) {
-      _instance = _channel.invokeMethod(
-        "init",
-        <String, dynamic>{
-          'scopes': _scopes,
-          'hostedDomain': _hostedDomain,
-        },
-      ).then((_) => new GoogleSignIn._());
-    }
-    return _instance;
-  }
-
-  /// Private constructor since we enforce a singleton pattern.
-  GoogleSignIn._();
+  @visibleForTesting
+  GoogleSignIn.private({ this.scopes, this.hostedDomain, MethodChannel channel })
+    : _channel = channel;
 
   StreamController<GoogleSignInAccount> _streamController =
   new StreamController<GoogleSignInAccount>.broadcast();
 
   /// Subscribe to this stream to be notified when the current user changes
   Stream<GoogleSignInAccount> get onCurrentUserChanged =>
-      _streamController.stream;
+  _streamController.stream;
+
+  // Future that completes when we've finished calling init on the native side
+  Future<Null> _initialization;
 
   Future<GoogleSignInAccount> _callMethod(String method) async {
+    if (_initialization == null) {
+      _initialization = _channel.invokeMethod(
+        "init",
+        <String, dynamic>{
+          'scopes': scopes ?? [],
+          'hostedDomain': hostedDomain,
+        },
+      );
+    }
+    await _initialization;
     Map<String, dynamic> response = await _channel.invokeMethod(method);
-    _currentUser = response != null ? new GoogleSignInAccount._(response) : null;
+    _currentUser = response != null ? new GoogleSignInAccount._(this, response) : null;
     _streamController.add(_currentUser);
     return _currentUser;
   }
@@ -171,13 +178,14 @@ class GoogleUserCircleAvatar extends StatelessWidget {
 
   Widget _buildClippedImage(BuildContext context, BoxConstraints constraints) {
     assert(constraints.maxWidth == constraints.maxHeight);
+    String url = _sizedProfileImageUrl(
+      MediaQuery.of(context).devicePixelRatio * constraints.maxWidth,
+    );
+    if (url == null)
+      return new Container();
     return new ClipOval(
       child: new Image(
-        image: new NetworkImage(
-          _sizedProfileImageUrl(
-            MediaQuery.of(context).devicePixelRatio * constraints.maxWidth,
-          ),
-        ),
+        image: new NetworkImage(url),
       ),
     );
   }

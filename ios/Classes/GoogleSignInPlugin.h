@@ -6,7 +6,7 @@
 #import <Google/SignIn.h>
 
 @interface GoogleSignInPlugin : NSObject<GIDSignInDelegate, GIDSignInUIDelegate>
-- initWithFlutterView: (FlutterViewController*)flutterView;
+- initWithController: (FlutterViewController*)flutterView;
 - (BOOL)  handleURL:(NSURL*)url
   sourceApplication:(NSString*)sourceApplication
          annotation:(id)annotation;

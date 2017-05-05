@@ -88,7 +88,7 @@ Add the following private member data to your AppDelegate:
 Add the following code to `application:didFinishLaunchingWithOptions:`:
 
 ```
-_googleSignInPlugin = [[GoogleSignInPlugin alloc] initWithFlutterView:flutterController];
+_googleSignInPlugin = [[GoogleSignInPlugin alloc] initWithController:flutterController];
 ```
 
 Add the following code to your AppDelegate:
